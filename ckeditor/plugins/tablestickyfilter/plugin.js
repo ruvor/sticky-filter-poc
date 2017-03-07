@@ -108,10 +108,48 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 command: 'unstickRows',
                 group: 'tablerow'
             });
-            var tablecolumnMenuItem = editor.getMenuItem("tablecolumn");
-            var originalTablecolumnMenuItemGetItems = tablecolumnMenuItem.getItems;
-            var tablerowMenuItem = editor.getMenuItem("tablerow");
-            var originalTablerowMenuItemGetItems = tablerowMenuItem.getItems;
+
+            //объект, обеспечивающий внедрение пунктов меню в подменю плагина tabletools
+            var tabletoolsMenuInjector = {
+                tablecolumnMenuItem: undefined,
+                originalTablecolumnMenuItemGetItems: undefined,
+                tablecolumnSubmenuItems: undefined,
+                tablerowMenuItem: undefined,
+                originalTablerowMenuItemGetItems: undefined,
+                tablerowSubmenuItems: undefined,
+
+                init: function () {
+                    this.tablecolumnMenuItem = editor.getMenuItem("tablecolumn");
+                    this.originalTablecolumnMenuItemGetItems = this.tablecolumnMenuItem.getItems;
+                    this.tablerowMenuItem = editor.getMenuItem("tablerow");
+                    this.originalTablerowMenuItemGetItems = this.tablerowMenuItem.getItems;
+                },
+
+                clear: function () {
+                    this.tablecolumnSubmenuItems = this.originalTablecolumnMenuItemGetItems();
+                    this.tablerowSubmenuItems = this.originalTablerowMenuItemGetItems();
+                },
+
+                injectTablecolumnSubmenuItem: function (menuItem) {
+                    this.tablecolumnSubmenuItems[menuItem] = CKEDITOR.TRISTATE_OFF;
+                },
+
+                injectTablerowSubmenuItem: function (menuItem) {
+                    this.tablerowSubmenuItems[menuItem] = CKEDITOR.TRISTATE_OFF;
+                },
+
+                apply: function () {
+                    var self = this;
+                    this.tablecolumnMenuItem.getItems = function () {
+                        return self.tablecolumnSubmenuItems;
+                    };
+                    this.tablerowMenuItem.getItems = function () {
+                        return self.tablerowSubmenuItems;
+                    };
+                }
+            };
+            tabletoolsMenuInjector.init();
+
             editor.contextMenu.addListener( function( element ) {
                 if (!StickyFilter) return; //на случай, если объект ещё не загружен
                 //console.dir(element); //debug
@@ -123,69 +161,65 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                         unstickRow: CKEDITOR.TRISTATE_OFF
                     }*/
 
+                    tabletoolsMenuInjector.clear();
+
                     //фильтрация
                     var edgeCells = getSelectionEdgeCells();
                     if (StickyFilter.colsAllCanFilter(edgeCells.startCell.$, edgeCells.endCell.$)) {
                         //столбцы выбранных ячеек все могут фильтроваться (или таковой один и может)
-                        var tablecolumnSubmenuItems = originalTablecolumnMenuItemGetItems();
                         if (edgeCells.startCell.equals(edgeCells.endCell)) {
                             //выбрана одна ячейка
                             if (StickyFilter.columnHasFilter(edgeCells.startCell.$)) {
                                 //и её столбец уже фильтруется
-                                tablecolumnSubmenuItems.disableFilter = CKEDITOR.TRISTATE_OFF;
+                                tabletoolsMenuInjector.injectTablecolumnSubmenuItem("disableFilter");
                             }
                             else {
                                 //и её столбец не фильтруется
-                                tablecolumnSubmenuItems.enableFilter = CKEDITOR.TRISTATE_OFF;
+                                tabletoolsMenuInjector.injectTablecolumnSubmenuItem("enableFilter");
                             }
                         }
                         else {
                             //выбраны несколько ячеек и, соответственно, столбцов
                             if (StickyFilter.colsHasFilters(edgeCells.startCell.$, edgeCells.endCell.$)) {
                                 //и среди них есть уже фильтрующиеся
-                                tablecolumnSubmenuItems.disableFilters = CKEDITOR.TRISTATE_OFF;
+                                tabletoolsMenuInjector.injectTablecolumnSubmenuItem("disableFilters");
                             }
                             else {
                                 //и среди них нет фильтрующихся
-                                tablecolumnSubmenuItems.enableFilters = CKEDITOR.TRISTATE_OFF;
+                                tabletoolsMenuInjector.injectTablecolumnSubmenuItem("enableFilters");
                             }
                         }
-                        tablecolumnMenuItem.getItems = function () {
-                            return tablecolumnSubmenuItems;
-                        };
                     }
 
                     //закрепление
                     var edgeRows = getSelectionEdgeRows();
                     if (StickyFilter.rowsAllCanStick(edgeRows.startRow.$, edgeRows.endRow.$)) {
                         //выбранные строки могут совместно закрепляться (или таковая одна и может)
-                        var tablerowSubmenuItems = originalTablerowMenuItemGetItems();
                         if (edgeRows.startRow.equals(edgeRows.endRow)) {
                             //выбрана одна строка
                             if (StickyFilter.rowIsSticky(edgeRows.startRow.$)) {
                                 //и эта строка закреплена
-                                tablerowSubmenuItems.unstickRow = CKEDITOR.TRISTATE_OFF;
+                                tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRow");
                             }
                             else {
                                 //и эта строка не закреплена
-                                tablerowSubmenuItems.stickRow = CKEDITOR.TRISTATE_OFF;
+                                tabletoolsMenuInjector.injectTablerowSubmenuItem("stickRow");
                             }
                         }
                         else {
                             //выбраны несколько строк
                             if (StickyFilter.rangeHasStickyRows(edgeRows.startRow.$, edgeRows.endRow.$)) {
                                 //и среди них есть закреплённые
-                                tablerowSubmenuItems.unstickRows = CKEDITOR.TRISTATE_OFF;
+                                tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRows");
                             }
                             else {
                                 //и среди них нет закреплённых
-                                tablerowSubmenuItems.stickRows = CKEDITOR.TRISTATE_OFF;
+                                tabletoolsMenuInjector.injectTablerowSubmenuItem("stickRows");
                             }
                         }
-                        tablerowMenuItem.getItems = function () {
-                            return tablerowSubmenuItems;
-                        };
                     }
+
+                    tabletoolsMenuInjector.apply();
                 }
             });
         }
