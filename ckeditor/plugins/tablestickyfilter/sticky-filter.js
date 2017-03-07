@@ -279,19 +279,6 @@ window.StickyFilter = (function () {
         return peerInput;
     }
 
-    /*function showHideRows(table, show) {//надо?
-        var rows = table.querySelectorAll("tr");
-        for (var i = 0; i < rows.length; i++) {
-            rows[i].style.display = show ? "table-row" : "none";
-        }
-    }
-    function showRows(table) {
-        showHideRows(table, true);
-    }
-    function hideRows(table) {
-        showHideRows(table, false);
-    }*/
-
     var requiredStyles = "\
         .table-filter input { \n\
             box-sizing: border-box; \n\
