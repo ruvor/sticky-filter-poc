@@ -46,17 +46,49 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 command: 'unstickRow',
                 group: 'tablerow'
             });
+            var tablecolumnMenuItem = editor.getMenuItem("tablecolumn");
+            var originalTablecolumnMenuItemGetItems = tablecolumnMenuItem.getItems;
+            var tablerowMenuItem = editor.getMenuItem("tablerow");
+            var originalTablerowMenuItemGetItems = tablerowMenuItem.getItems;
             editor.contextMenu.addListener( function( element ) {
-                console.dir(element);
+                //console.dir(element);
                 if ( element.getAscendant( { th: 1, td: 1 }, true ) ) {
-                    return {
+                    /*return {
                         enableFilter: CKEDITOR.TRISTATE_OFF,
                         disableFilter: CKEDITOR.TRISTATE_OFF,
                         stickRow: CKEDITOR.TRISTATE_OFF,
                         unstickRow: CKEDITOR.TRISTATE_OFF
+                    }*/
+                    var tablecolumnSubmenuItems = originalTablecolumnMenuItemGetItems();
+                    if (columnHasFilter(element)) {
+                        tablecolumnSubmenuItems.disableFilter = CKEDITOR.TRISTATE_OFF;
+                    }
+                    else {
+                        tablecolumnSubmenuItems.enableFilter = CKEDITOR.TRISTATE_OFF;
+                    }
+                    tablecolumnMenuItem.getItems = function () {
+                        return tablecolumnSubmenuItems;
+                    };
+                    var tablerowSubmenuItems = originalTablerowMenuItemGetItems();
+                    if (rowIsSticky(element)) {
+                        tablerowSubmenuItems.unstickRow = CKEDITOR.TRISTATE_OFF;
+                    }
+                    else {
+                        tablerowSubmenuItems.stickRow = CKEDITOR.TRISTATE_OFF;
+                    }
+                    tablerowMenuItem.getItems = function () {
+                        return tablerowSubmenuItems;
                     };
                 }
             });
         }
     }
 });
+
+function columnHasFilter(element) {
+    return true;
+}
+
+function rowIsSticky(element) {
+    return true;
+}
