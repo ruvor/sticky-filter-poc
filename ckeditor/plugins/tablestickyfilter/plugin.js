@@ -154,6 +154,8 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 if (!StickyFilter) return; //на случай, если объект ещё не загружен
                 //console.dir(element); //debug
                 if ( element.getAscendant( { th: 1, td: 1 }, true ) ) {
+                    //если меню вызывается на ячейке
+
                     /*return {
                         enableFilter: CKEDITOR.TRISTATE_OFF,
                         disableFilter: CKEDITOR.TRISTATE_OFF,
@@ -163,7 +165,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
 
                     tabletoolsMenuInjector.clear();
 
-                    //фильтрация
+                    //активация пунктов меню, относящихся к фильтрации
                     var edgeCells = getSelectionEdgeCells();
                     if (StickyFilter.colsAllCanFilter(edgeCells.startCell.$, edgeCells.endCell.$)) {
                         //столбцы выбранных ячеек все могут фильтроваться (или таковой один и может)
@@ -191,7 +193,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                         }
                     }
 
-                    //закрепление
+                    //активация пунктов меню, относящихся к закреплению
                     var edgeRows = getSelectionEdgeRows();
                     if (StickyFilter.rowsAllCanStick(edgeRows.startRow.$, edgeRows.endRow.$)) {
                         //выбранные строки могут совместно закрепляться (или таковая одна и может)
