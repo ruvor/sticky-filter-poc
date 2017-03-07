@@ -36,8 +36,10 @@ window.StickyFilter = (function () {
             Element.prototype.remove = function() {
                 this.parentElement.removeChild(this);
             }
-    }
+        }
     // /несколько полифиллов
+
+    // private methods
 
     function onTableFilterInput(e) {
         var peerInput = findPeerInput(e.target);
@@ -54,6 +56,61 @@ window.StickyFilter = (function () {
         var event = document.createEvent("Event");
         event.initEvent("input", true, true);
         peerInput.dispatchEvent(event);
+    }
+
+    function findPeerInput(origInput) {
+        var num;
+        var origTable = origInput.closest("table");
+        var peerTable = origTable.peer;
+        if (!peerTable) return null;
+        var inputs = origTable.querySelectorAll("." + CF_CLASS + " input[type=text]");
+        for (var i = 0; i < inputs.length; i++) {
+            if (inputs[i] == origInput) {
+                num = i;
+                break;
+            }
+        }
+        var peerInput = peerTable.querySelectorAll("." + CF_CLASS + " input[type=text]")[num];
+        return peerInput;
+    }
+
+    function filterTable(table) {
+        var filterRow = table.querySelector("tr." + RF_CLASS);
+        var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
+        if (!filterRow || rows.length == 0) return;
+        var filterValues = {};
+        var filterCells = filterRow.querySelectorAll("th, td");
+        for (var i = 0; i < filterCells.length; i++) {
+            var filterInput = filterCells[i].querySelector("." + CF_CLASS + " input[type=text]");
+            if (filterInput && filterInput.value) {
+                filterValues[i] = filterInput.value.toLowerCase();
+            }
+        }
+        var rowsToHide = [];
+        var rowsToShow = [];
+        for (var j = 0; j < rows.length; j++) {
+            var row = rows[j];
+            var hideRow = false;
+            var cols = row.querySelectorAll("th, td");
+            for (var filteringColIndex in filterValues) {
+                if (cols[filteringColIndex].textContent.toLowerCase().indexOf(filterValues[filteringColIndex]) < 0) {
+                    hideRow = true;
+                    break;
+                }
+            }
+            if (hideRow) rowsToHide.push(row);
+            else rowsToShow.push(row);
+        }
+        for (i = 0; i < rowsToHide.length; i++) rowsToHide[i].style.display = "none";
+        for (i = 0; i < rowsToShow.length; i++) rowsToShow[i].style.display = "table-row";
+    }
+
+    function unfilterTable(table) {
+        var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
+        for (var j = 0; j < rows.length; j++) {
+            var row = rows[j];
+            row.style.display = "table-row";
+        }
     }
 
     function onWindowScroll(e) {
@@ -123,6 +180,23 @@ window.StickyFilter = (function () {
         table.className += " " + TP_CLASS;
     }
 
+    function countRowCols(row) {
+        var cells = row.querySelectorAll("th, td");
+        var colsNum = 0;
+        for (var i = 0; i < cells.length; i++) {
+            colsNum += cells[i].colSpan;
+        }
+        return colsNum;
+    }
+
+    function countTableCols(table) {
+        return countRowCols(table.querySelector("tr"));
+    }
+
+    // /private methods
+
+    // public methods
+
     function enableTableFiltering() {
         if (isFiltering) return;
         var allTables = document.querySelectorAll("table");
@@ -171,45 +245,6 @@ window.StickyFilter = (function () {
             enableTableSticking();
         }
         isFiltering = false;
-    }
-
-    function filterTable(table) {
-        var filterRow = table.querySelector("tr." + RF_CLASS);
-        var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
-        if (!filterRow || rows.length == 0) return;
-        var filterValues = {};
-        var filterCells = filterRow.querySelectorAll("th, td");
-        for (var i = 0; i < filterCells.length; i++) {
-            var filterInput = filterCells[i].querySelector("." + CF_CLASS + " input[type=text]");
-            if (filterInput && filterInput.value) {
-                filterValues[i] = filterInput.value.toLowerCase();
-            }
-        }
-        var rowsToHide = [];
-        var rowsToShow = [];
-        for (var j = 0; j < rows.length; j++) {
-            var row = rows[j];
-            var hideRow = false;
-            var cols = row.querySelectorAll("th, td");
-            for (var filteringColIndex in filterValues) {
-                if (cols[filteringColIndex].textContent.toLowerCase().indexOf(filterValues[filteringColIndex]) < 0) {
-                    hideRow = true;
-                    break;
-                }
-            }
-            if (hideRow) rowsToHide.push(row);
-            else rowsToShow.push(row);
-        }
-        for (i = 0; i < rowsToHide.length; i++) rowsToHide[i].style.display = "none";
-        for (i = 0; i < rowsToShow.length; i++) rowsToShow[i].style.display = "table-row";
-    }
-
-    function unfilterTable(table) {
-        var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
-        for (var j = 0; j < rows.length; j++) {
-            var row = rows[j];
-            row.style.display = "table-row";
-        }
     }
 
     function enableTableSticking() {
@@ -263,22 +298,6 @@ window.StickyFilter = (function () {
         isSticky = false;
     }
 
-    function findPeerInput(origInput) {
-        var num;
-        var origTable = origInput.closest("table");
-        var peerTable = origTable.peer;
-        if (!peerTable) return null;
-        var inputs = origTable.querySelectorAll("." + CF_CLASS + " input[type=text]");
-        for (var i = 0; i < inputs.length; i++) {
-            if (inputs[i] == origInput) {
-                num = i;
-                break;
-            }
-        }
-        var peerInput = peerTable.querySelectorAll("." + CF_CLASS + " input[type=text]")[num];
-        return peerInput;
-    }
-
     function colsAllCanFilter() {
         return true;
     }
@@ -291,16 +310,119 @@ window.StickyFilter = (function () {
         return true;
     }
 
-    function rowsAllCanStick() {
-        return true;
+    function rowsAllCanStick(startRow, endRow) {
+        var table = startRow.closest("table");
+        var colsNum = countTableCols(table);
+        var firstRangeRowColsNum = countRowCols(startRow);
+        if (firstRangeRowColsNum != colsNum) {
+            //если количества столбцов, вычисленные по первой строке таблицы и по первой
+            //строке диапазона, не совпадают, значит в первой строке диапазона есть 
+            //объединённые ячейки из более верхних строк, такие строки закреплять нельзя
+            return false;
+        }
+        var rows = table.querySelectorAll("tr");
+        var rowsRangeHeight = 0;
+        var process = false;
+        for (var i = 0; i < rows.length; i++) { //TODO: такой цикл выделить в спецфункцию функции
+            var row = rows[i];
+            if (row === startRow) process = true;
+            if (process) rowsRangeHeight++;
+            if (row === endRow) break;
+        }
+        //вычислено rowsRangeHeight - высота запрошенного диапазона строк
+        var maxRowSpanDepth = 0;
+        var rowSpanDepthAcc;
+        var rangeRowNum = 0;
+        process = false;
+        for (i = 0; i < rows.length; i++) {
+            row = rows[i];
+            if (row === startRow) process = true;
+            if (process) {
+                rowSpanDepthAcc = 0;
+                var cells = row.querySelectorAll("th, td");
+                for (var j = 0; j < cells.length; j++) {
+                    var cell = cells[j];
+                    if (cell.rowSpan > rowSpanDepthAcc) rowSpanDepthAcc = cell.rowSpan;
+                }
+                var rowSpanDepth = rowSpanDepthAcc + rangeRowNum; //глубина объединённости ячеек по состоянию на текущую строку
+                if (rowSpanDepth > maxRowSpanDepth) maxRowSpanDepth = rowSpanDepth;
+                rangeRowNum++;
+            }
+            if (row === endRow) break;
+        }
+        //вычислено maxRowSpanDepth - максимальная глубина объединенности ячеек в диапазоне,
+        //если она превышает высоту диапазона, такие строки закреплять нельзя
+        return maxRowSpanDepth <= rowsRangeHeight;
     }
 
-    function rowIsSticky(element) {
-        return true;
+    function rowIsSticky(row) {
+        return new RegExp("\\b" + RS_CLASS + "\\b").test(row.className);
     }
 
-    function rangeHasStickyRows() {
+    function rangeHasStickyRows(startRow, endRow) {
+        if (startRow === endRow) {
+            return rowIsSticky(startRow);
+        }
+        var table = startRow.closest("table");
+        var rows = table.querySelectorAll("tr");
+        var process = false;
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            if (row === startRow) process = true;
+            if (process) {
+                if (rowIsSticky(row)) return true;
+            }
+            if (row === endRow) break;
+        }
         return false;
+    }
+
+    function enableFilterForCol(col) {
+
+    }
+
+    function enableFiltersForCols(startCol, endCol) {
+
+    }
+
+    function disableFilterForCol(col) {
+
+    }
+
+    function disableFiltersForCols(startCol, endCol) {
+
+    }
+
+    function stickRow(row) {
+        row.className += " " + RS_CLASS;
+    }
+
+    function stickRows(startRow, endRow) {
+        var table = startRow.closest("table");
+        var rows = table.querySelectorAll("tr");
+        var process = false;
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            if (row === startRow) process = true;
+            if (process) row.className += " " + RS_CLASS;
+            if (row === endRow) break;
+        }
+    }
+
+    function unstickRow(row) {
+        row.className = row.className.replace(" " + RS_CLASS, "");
+    }
+
+    function unstickRows(startRow, endRow) {
+        var table = startRow.closest("table");
+        var rows = table.querySelectorAll("tr");
+        var process = false;
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            if (row === startRow) process = true;
+            if (process) row.className = row.className.replace(" " + RS_CLASS, "");
+            if (row === endRow) break;
+        }
     }
 
     var requiredStyles = "\
@@ -338,6 +460,14 @@ window.StickyFilter = (function () {
     StickyFilter.rowsAllCanStick = rowsAllCanStick;
     StickyFilter.rowIsSticky = rowIsSticky;
     StickyFilter.rangeHasStickyRows = rangeHasStickyRows;
+    StickyFilter.enableFilterForCol = enableFilterForCol;
+    StickyFilter.enableFiltersForCols = enableFilterForCol;
+    StickyFilter.disableFilterForCol = disableFilterForCol;
+    StickyFilter.disableFiltersForCols = disableFiltersForCols;
+    StickyFilter.stickRow = stickRow;
+    StickyFilter.stickRows = stickRows;
+    StickyFilter.unstickRow = unstickRow;
+    StickyFilter.unstickRows = unstickRows;
     Object.defineProperty(StickyFilter, "isFiltering", {
         get: function() {
             return isFiltering;
