@@ -180,5 +180,15 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 }
             });
         }
+    },
+    onLoad: function() {
+        CKEDITOR.addCss(" \n\
+            .row-filter td, .row-filter th { \n\
+                background: #feeeff; \n\
+            } \n\
+            .row-sticky td, .row-sticky th { \n\
+                background: #eefeff; \n\
+            } \n\
+        ");
     }
 });
