@@ -293,7 +293,7 @@ window.StickyFilter = (function () {
     }*/
 
     var requiredStyles = "\
-        .table-filter input { \n\n\
+        .table-filter input { \n\
             box-sizing: border-box; \n\
             display: block; \n\
             width: 100%; \n\

@@ -249,9 +249,9 @@
                 opacity: 1;
             }
         </style>
-        <input type="checkbox" id="filter"><label for="filter" style="cursor: pointer;" onmousedown="return false;"><span>Фильтрация</span></label>
+        <input type="checkbox" id="filter" checked><label for="filter" style="cursor: pointer;" onmousedown="return false;"><span>Фильтрация</span></label>
         <br>
-        <input type="checkbox" id="sticky"><label for="sticky" style="cursor: pointer;" onmousedown="return false;"><span>Закрепление</span></label>
+        <input type="checkbox" id="sticky" checked><label for="sticky" style="cursor: pointer;" onmousedown="return false;"><span>Закрепление</span></label>
     </div>
 
     <script src="ckeditor/plugins/tablestickyfilter/sticky-filter.js"></script>
@@ -274,16 +274,8 @@
             }
             document.getElementById("filter").checked = StickyFilter.isFiltering;
         });
-        var event = document.createEvent("Event");
-        event.initEvent("change", true, true);
-        var btn = document.getElementById("filter");
-        btn.checked = true;
-        btn.dispatchEvent(event);
-        event = document.createEvent("Event");
-        event.initEvent("change", true, true);
-        btn = document.getElementById("sticky");
-        btn.checked = true;
-        document.getElementById("sticky").dispatchEvent(event);
+        StickyFilter.enableTableFiltering();
+        StickyFilter.enableTableSticking();
     </script>
 
 </body>
