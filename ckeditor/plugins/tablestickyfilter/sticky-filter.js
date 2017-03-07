@@ -63,6 +63,7 @@ var StickyFilter = (function () {
                 continue;
             }
             peer.style.left = tableRect.left + "px";
+            peer.style.width = table.offsetWidth + "px";
             peer.style.visibility = "hidden";
             peer.style.display = "table";
             var peerRows = peer.querySelectorAll("tr");
@@ -105,7 +106,6 @@ var StickyFilter = (function () {
             cell.style.boxSizing = "border-box";
             cellWidths[j] = cell.offsetWidth;
         }
-        var tableWidth = table.offsetWidth;
         var colgroup = table.querySelector("colgroup");
         if (colgroup) colgroup.remove();
         colgroup = document.createElement("colgroup");
@@ -116,8 +116,6 @@ var StickyFilter = (function () {
             colgroup.appendChild(col);
         }
         table.insertBefore(colgroup, table.firstChild);
-        table.style.boxSizing = "border-box";
-        table.style.width = tableWidth + "px";
         table.style.tableLayout = "fixed";
         table.className += " " + TP_CLASS;
     }
@@ -306,6 +304,8 @@ var StickyFilter = (function () {
         .sticky-wrapper table { \n\
             background: white; \n\
             position: absolute; \n\
+            min-width: 0; \n\
+            max-width: none; \n\
         } \n\
     ";
     var styleElement = document.createElement("style");
