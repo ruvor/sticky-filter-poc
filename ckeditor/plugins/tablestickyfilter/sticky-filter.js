@@ -279,6 +279,30 @@ window.StickyFilter = (function () {
         return peerInput;
     }
 
+    function colsAllCanFilter() {
+        return true;
+    }
+
+    function columnHasFilter(element) {
+        return true;
+    }
+
+    function colsHasFilters() {
+        return true;
+    }
+
+    function rowsAllCanStick() {
+        return true;
+    }
+
+    function rowIsSticky(element) {
+        return true;
+    }
+
+    function rangeHasStickyRows() {
+        return false;
+    }
+
     var requiredStyles = "\
         .table-filter input { \n\
             box-sizing: border-box; \n\
@@ -308,6 +332,12 @@ window.StickyFilter = (function () {
     StickyFilter.disableTableFiltering = disableTableFiltering;
     StickyFilter.enableTableSticking = enableTableSticking;
     StickyFilter.disableTableSticking = disableTableSticking;
+    StickyFilter.colsAllCanFilter = colsAllCanFilter;
+    StickyFilter.columnHasFilter = columnHasFilter;
+    StickyFilter.colsHasFilters = colsHasFilters;
+    StickyFilter.rowsAllCanStick = rowsAllCanStick;
+    StickyFilter.rowIsSticky = rowIsSticky;
+    StickyFilter.rangeHasStickyRows = rangeHasStickyRows;
     Object.defineProperty(StickyFilter, "isFiltering", {
         get: function() {
             return isFiltering;

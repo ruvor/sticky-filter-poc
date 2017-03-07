@@ -1,6 +1,10 @@
 CKEDITOR.plugins.add( 'tablestickyfilter', {
     requires: 'tabletools,dialog,contextmenu',
     init: function( editor ) {
+        var scriptElement = document.createElement("script");
+        scriptElement.src = this.path + "sticky-filter.js";
+        document.querySelector("head").insertAdjacentElement("beforeEnd", scriptElement);
+
         editor.addCommand( 'enableFilter', {
             exec: function( editor ) {
                 var now = new Date();
@@ -95,7 +99,8 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
             var tablerowMenuItem = editor.getMenuItem("tablerow");
             var originalTablerowMenuItemGetItems = tablerowMenuItem.getItems;
             editor.contextMenu.addListener( function( element ) {
-                //console.dir(element);
+                if (!StickyFilter) return; //на случай, если объект ещё не загружен
+                //console.dir(element); //debug
                 if ( element.getAscendant( { th: 1, td: 1 }, true ) ) {
                     /*return {
                         enableFilter: CKEDITOR.TRISTATE_OFF,
@@ -110,12 +115,12 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                     //фильтрация
                     var startCell = range.startContainer.getAscendant("tr", true);
                     var endCell = range.endContainer.getAscendant("tr", true);
-                    if (colsAllCanFilter(startCell.$, endCell.$)) {
+                    if (StickyFilter.colsAllCanFilter(startCell.$, endCell.$)) {
                         //столбцы выбранных ячеек все могут фильтроваться (или таковой один и может)
                         var tablecolumnSubmenuItems = originalTablecolumnMenuItemGetItems();
                         if (startCell.equals(endCell)) {
                             //выбрана одна ячейка
-                            if (columnHasFilter(startCell.$)) {
+                            if (StickyFilter.columnHasFilter(startCell.$)) {
                                 //и её столбец уже фильтруется
                                 tablecolumnSubmenuItems.disableFilter = CKEDITOR.TRISTATE_OFF;
                             }
@@ -126,7 +131,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                         }
                         else {
                             //выбранны несколько ячеек и, соответственно, столбцов
-                            if (colsHasFilters(startCell.$, endCell.$)) {
+                            if (StickyFilter.colsHasFilters(startCell.$, endCell.$)) {
                                 //и среди них есть уже фильтрующиеся
                                 tablecolumnSubmenuItems.disableFilters = CKEDITOR.TRISTATE_OFF;
                             }
@@ -143,12 +148,12 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                     //закрепление
                     var startRow = range.startContainer.getAscendant("tr", true);
                     var endRow = range.endContainer.getAscendant("tr", true);
-                    if (rowsAllCanStick(startRow.$, endRow.$)) {
+                    if (StickyFilter.rowsAllCanStick(startRow.$, endRow.$)) {
                         //выбранные строки могут совместно закрепляться (или таковая одна и может)
                         var tablerowSubmenuItems = originalTablerowMenuItemGetItems();
                         if (startRow.equals(endRow)) {
                             //выбрана одна строка
-                            if (rowIsSticky(startRow.$)) {
+                            if (StickyFilter.rowIsSticky(startRow.$)) {
                                 //и эта строка закреплена
                                 tablerowSubmenuItems.unstickRow = CKEDITOR.TRISTATE_OFF;
                             }
@@ -159,12 +164,12 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                         }
                         else {
                             //выбраны несколько строк
-                            if (rangeHasStickyRows(startRow.$, endRow.$)) {
+                            if (StickyFilter.rangeHasStickyRows(startRow.$, endRow.$)) {
                                 //и среди них есть закреплённые
                                 tablerowSubmenuItems.unstickRows = CKEDITOR.TRISTATE_OFF;
                             }
                             else {
-                                //и среди них yнет закреплённых
+                                //и среди них нет закреплённых
                                 tablerowSubmenuItems.stickRows = CKEDITOR.TRISTATE_OFF;
                             }
                         }
@@ -177,27 +182,3 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
         }
     }
 });
-
-function colsAllCanFilter() {
-    return true;
-}
-
-function columnHasFilter(element) {
-    return true;
-}
-
-function colsHasFilters() {
-    return true;
-}
-
-function rowsAllCanStick() {
-    return true;
-}
-
-function rowIsSticky(element) {
-    return true;
-}
-
-function rangeHasStickyRows() {
-    return false;
-}
