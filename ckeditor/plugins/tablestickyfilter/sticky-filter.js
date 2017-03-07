@@ -290,6 +290,27 @@ var StickyFilter = (function () {
         showHideRows(table, false);
     }*/
 
+    var requiredStyles = "\
+        .table-filter input { \n\n\
+            box-sizing: border-box; \n\
+            width: 100%; \n\
+        } \n\
+        .sticky-wrapper { \n\
+            position: fixed; \n\
+            top: 0; \n\
+            left: 0; \n\
+            width: 100%; \n\
+            height: 0; \n\
+        } \n\
+        .sticky-wrapper table { \n\
+            background: white; \n\
+            position: absolute; \n\
+        } \n\
+    ";
+    var styleElement = document.createElement("style");
+    styleElement.textContent = requiredStyles;
+    document.querySelector("head").insertAdjacentElement("beforeEnd", styleElement);
+
     var StickyFilter = {};
     StickyFilter.enableTableFiltering = enableTableFiltering;
     StickyFilter.disableTableFiltering = disableTableFiltering;
