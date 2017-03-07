@@ -1,5 +1,8 @@
 //закрепление следует использовать с таблицами без внешних границ
-var StickyFilter = (function () {
+
+if (window.StickyFilter === undefined) {
+
+window.StickyFilter = (function () {
     var TP_CLASS = "table-prcnt"; //CSS-класс, назначаемый "процентизованным" таблицам
     var TF_CLASS = "table-filter"; //CSS-класс, назначаемый таблицам с фильтром
     var RF_CLASS = "row-filter"; //CSS-класс, назначаемый строкам с фильтром
@@ -330,3 +333,5 @@ var StickyFilter = (function () {
     });
     return StickyFilter;
 })();
+
+}
