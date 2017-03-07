@@ -292,6 +292,7 @@ var StickyFilter = (function () {
     var requiredStyles = "\
         .table-filter input { \n\n\
             box-sizing: border-box; \n\
+            display: block; \n\
             width: 100%; \n\
         } \n\
         .sticky-wrapper { \n\
