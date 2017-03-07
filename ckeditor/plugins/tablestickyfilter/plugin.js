@@ -5,52 +5,66 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
         scriptElement.src = this.path + "sticky-filter.js";
         document.querySelector("head").insertAdjacentElement("beforeEnd", scriptElement);
 
+        function getSelectionEdgeCells() {
+            var selection = editor.getSelection();
+            var range = selection.getRanges()[0];
+            return {
+                startCell: range.startContainer.getAscendant({ th: 1, td: 1 }, true),
+                endCell: range.endContainer.getAscendant({ th: 1, td: 1 }, true)
+            };
+        }
+
+        function getSelectionEdgeRows() {
+            var selection = editor.getSelection();
+            var range = selection.getRanges()[0];
+            return {
+                startRow: range.startContainer.getAscendant("tr", true),
+                endRow: range.endContainer.getAscendant("tr", true)
+            };
+        }
+
         editor.addCommand( 'enableFilter', {
             exec: function( editor ) {
-                var now = new Date();
-                editor.insertHtml( 'The current date and time is: <em>' + now.toString() + '</em>' );
+                StickyFilter.enableFilterForCol(getSelectionEdgeCells().startCell.$);
             }
         });
         editor.addCommand( 'enableFilters', {
             exec: function( editor ) {
-                var now = new Date();
-                editor.insertHtml( 'The current date and time is: <em>' + now.toString() + '</em>' );
+                var edgeCells = getSelectionEdgeCells();
+                StickyFilter.enableFiltersForCols(edgeCells.startCell.$, edgeCells.endCell.$);
             }
         });
         editor.addCommand( 'disableFilter', {
             exec: function( editor ) {
-                var now = new Date();
-                editor.insertHtml( 'The current date and time is: <em>' + now.toString() + '</em>' );
+                StickyFilter.disableFilterForCol(getSelectionEdgeCells().startCell.$);
             }
         });
         editor.addCommand( 'disableFilters', {
             exec: function( editor ) {
-                var now = new Date();
-                editor.insertHtml( 'The current date and time is: <em>' + now.toString() + '</em>' );
+                var edgeCells = getSelectionEdgeCells();
+                StickyFilter.disableFiltersForCols(edgeCells.startCell.$, edgeCells.endCell.$);
             }
         });
         editor.addCommand( 'stickRow', {
             exec: function( editor ) {
-                var now = new Date();
-                editor.insertHtml( 'The current date and time is: <em>' + now.toString() + '</em>' );
+                StickyFilter.stickRow(getSelectionEdgeRows().startRow.$);
             }
         });
         editor.addCommand( 'stickRows', {
             exec: function( editor ) {
-                var now = new Date();
-                editor.insertHtml( 'The current date and time is: <em>' + now.toString() + '</em>' );
+                var edgeRows = getSelectionEdgeRows();
+                StickyFilter.stickRows(edgeRows.startRow.$, edgeRows.endRow.$);
             }
         });
         editor.addCommand( 'unstickRow', {
             exec: function( editor ) {
-                var now = new Date();
-                editor.insertHtml( 'The current date and time is: <em>' + now.toString() + '</em>' );
+                StickyFilter.unstickRow(getSelectionEdgeRows().startRow.$);
             }
         });
         editor.addCommand( 'unstickRows', {
             exec: function( editor ) {
-                var now = new Date();
-                editor.insertHtml( 'The current date and time is: <em>' + now.toString() + '</em>' );
+                var edgeRows = getSelectionEdgeRows();
+                StickyFilter.unstickRows(edgeRows.startRow.$, edgeRows.endRow.$);
             }
         });
         if ( editor.contextMenu ) {
@@ -109,18 +123,14 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                         unstickRow: CKEDITOR.TRISTATE_OFF
                     }*/
 
-                    var selection = editor.getSelection();
-                    var range = selection.getRanges()[0];
-
                     //фильтрация
-                    var startCell = range.startContainer.getAscendant("tr", true);
-                    var endCell = range.endContainer.getAscendant("tr", true);
-                    if (StickyFilter.colsAllCanFilter(startCell.$, endCell.$)) {
+                    var edgeCells = getSelectionEdgeCells();
+                    if (StickyFilter.colsAllCanFilter(edgeCells.startCell.$, edgeCells.endCell.$)) {
                         //столбцы выбранных ячеек все могут фильтроваться (или таковой один и может)
                         var tablecolumnSubmenuItems = originalTablecolumnMenuItemGetItems();
-                        if (startCell.equals(endCell)) {
+                        if (edgeCells.startCell.equals(edgeCells.endCell)) {
                             //выбрана одна ячейка
-                            if (StickyFilter.columnHasFilter(startCell.$)) {
+                            if (StickyFilter.columnHasFilter(edgeCells.startCell.$)) {
                                 //и её столбец уже фильтруется
                                 tablecolumnSubmenuItems.disableFilter = CKEDITOR.TRISTATE_OFF;
                             }
@@ -130,8 +140,8 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                             }
                         }
                         else {
-                            //выбранны несколько ячеек и, соответственно, столбцов
-                            if (StickyFilter.colsHasFilters(startCell.$, endCell.$)) {
+                            //выбраны несколько ячеек и, соответственно, столбцов
+                            if (StickyFilter.colsHasFilters(edgeCells.startCell.$, edgeCells.endCell.$)) {
                                 //и среди них есть уже фильтрующиеся
                                 tablecolumnSubmenuItems.disableFilters = CKEDITOR.TRISTATE_OFF;
                             }
@@ -146,14 +156,13 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                     }
 
                     //закрепление
-                    var startRow = range.startContainer.getAscendant("tr", true);
-                    var endRow = range.endContainer.getAscendant("tr", true);
-                    if (StickyFilter.rowsAllCanStick(startRow.$, endRow.$)) {
+                    var edgeRows = getSelectionEdgeRows();
+                    if (StickyFilter.rowsAllCanStick(edgeRows.startRow.$, edgeRows.endRow.$)) {
                         //выбранные строки могут совместно закрепляться (или таковая одна и может)
                         var tablerowSubmenuItems = originalTablerowMenuItemGetItems();
-                        if (startRow.equals(endRow)) {
+                        if (edgeRows.startRow.equals(edgeRows.endRow)) {
                             //выбрана одна строка
-                            if (StickyFilter.rowIsSticky(startRow.$)) {
+                            if (StickyFilter.rowIsSticky(edgeRows.startRow.$)) {
                                 //и эта строка закреплена
                                 tablerowSubmenuItems.unstickRow = CKEDITOR.TRISTATE_OFF;
                             }
@@ -164,7 +173,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                         }
                         else {
                             //выбраны несколько строк
-                            if (StickyFilter.rangeHasStickyRows(startRow.$, endRow.$)) {
+                            if (StickyFilter.rangeHasStickyRows(edgeRows.startRow.$, edgeRows.endRow.$)) {
                                 //и среди них есть закреплённые
                                 tablerowSubmenuItems.unstickRows = CKEDITOR.TRISTATE_OFF;
                             }
