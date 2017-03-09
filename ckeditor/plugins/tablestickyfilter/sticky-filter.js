@@ -317,11 +317,36 @@ window.StickyFilter = (function () {
 
         // методы для вызова плагином при редактировании содержимого
 
-            function colsAllCanFilter(startCell, endCell) {
+            function tableCanFilter(table) {
+                //таблицу разрешено фильтровать, если все её незакреплённые строки не содержат
+                //объединённых ячеек совсем или содержат, но они объединены только по горизонтали
+                var nonStickyRows = table.querySelectorAll("tr:not(." + RS_CLASS + ")");
+                for (var i = 0; i < nonStickyRows.length; i++) {
+                    var cells = nonStickyRows[i].cells;
+                    for (var j = 0; j < cells.length; j++) {
+                        if (cells[j].rowspan > 1) return false;
+                    }
+                }
                 return true;
             }
 
-            function columnHasFilter(element) {
+            function colCanFilter(cell) {
+                return colsAllCanFilter(cell, cell);
+            }
+
+            function colsAllCanFilter(startCell, endCell) {
+                //столбцы разрешено фильтровать, если разрешена фильтрация таблицы по признаку
+                //исключительно горизонтальных объединений в незакреплённых строках
+                var table = startCell.closest("table");
+                if (!tableCanFilter(table)) return false;
+                //и если все ячейки незакреплённых строк и первой строки (которая может быть закреплена),
+                //входящие в объединения, не относятся к проверяемым столбцам
+                var nonStickyRows = table.querySelectorAll("tr:not(." + RS_CLASS + ")");
+                var firstRow = table.rows[0];
+                return true;
+            }
+
+            function colHasFilter(element) {
                 return true;
             }
 

@@ -8,11 +8,28 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
         document.querySelector("head").insertAdjacentElement("beforeEnd", scriptElement);
 
         function getSelectionEdgeCells() {
+            //рассматриваются выделенные ячейки только одной строки, начиная со строки ячейки
+            //начала выбранного диапазона, потому что весьма сомнительно, что кому-то понадобится
+            //включать фильтры для столбцов ячеек, выделенных в нескольких строках, а код при
+            //таком предположении значительно упрощается
             var selection = editor.getSelection();
             var range = selection.getRanges()[0];
+            var startCell = range.startContainer.getAscendant({ th: 1, td: 1 }, true);
+            var startCellRow = startCell.getParent();
+            var endCell = range.endContainer.getAscendant({ th: 1, td: 1 }, true);
+            var endCellRow = endCell.getParent();
+            if (!startCellRow.equals(endCellRow)) {
+                //выбраны несколько строк, такая ситуация считается равнозначной выбору одной ячейки
+                endCell = startCell;
+            }
+            var filterRow = StickyFilter.getFilterRow();
+            if (!filterRow) filterRow = startCellRow;
+            //определить номера столбцов как-то, найти по этим номерам ячейки строки filterRow, соответствующие
+            //запрошенным ячейкам
             return {
-                startCell: range.startContainer.getAscendant({ th: 1, td: 1 }, true),
-                endCell: range.endContainer.getAscendant({ th: 1, td: 1 }, true)
+                filterRow: filterRow,
+                startCell: startCell.$,
+                endCell: endCell.$
             };
         }
 
