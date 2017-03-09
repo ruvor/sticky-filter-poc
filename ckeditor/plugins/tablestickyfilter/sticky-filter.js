@@ -504,26 +504,11 @@ window.StickyFilter = (function () {
     document.querySelector("head").insertAdjacentElement("beforeEnd", styleElement);
 
     var StickyFilter = {};
+
     StickyFilter.enableTableFiltering = enableTableFiltering;
     StickyFilter.disableTableFiltering = disableTableFiltering;
     StickyFilter.enableTableSticking = enableTableSticking;
     StickyFilter.disableTableSticking = disableTableSticking;
-    StickyFilter.colsAllCanFilter = colsAllCanFilter;
-    StickyFilter.columnHasFilter = columnHasFilter;
-    StickyFilter.colsHasFilters = colsHasFilters;
-    StickyFilter.rowCanStick = rowCanStick;
-    StickyFilter.rowsAllCanStick = rowsAllCanStick;
-    StickyFilter.rowIsSticky = rowIsSticky;
-    StickyFilter.rangeHasStickyRows = rangeHasStickyRows;
-    StickyFilter.rangeIsAllSticky = rangeIsAllSticky;
-    StickyFilter.enableFilterForCol = enableFilterForCol;
-    StickyFilter.enableFiltersForCols = enableFilterForCol;
-    StickyFilter.disableFilterForCol = disableFilterForCol;
-    StickyFilter.disableFiltersForCols = disableFiltersForCols;
-    StickyFilter.stickRow = stickRow;
-    StickyFilter.stickRows = stickRows;
-    StickyFilter.unstickRow = unstickRow;
-    StickyFilter.unstickRows = unstickRows;
     Object.defineProperty(StickyFilter, "isFiltering", {
         get: function() {
             return isFiltering;
@@ -534,6 +519,25 @@ window.StickyFilter = (function () {
             return isSticky;
         }
     });
+
+    StickyFilter.colCanFilter = colCanFilter;
+    StickyFilter.colsAllCanFilter = colsAllCanFilter;
+    StickyFilter.colHasFilter = colHasFilter;
+    StickyFilter.colsHasFilters = colsHasFilters;
+    StickyFilter.enableFilterForCol = enableFilterForCol;
+    StickyFilter.enableFiltersForCols = enableFilterForCol;
+    StickyFilter.disableFilterForCol = disableFilterForCol;
+    StickyFilter.disableFiltersForCols = disableFiltersForCols;
+    StickyFilter.rowCanStick = rowCanStick;
+    StickyFilter.rowsAllCanStick = rowsAllCanStick;
+    StickyFilter.rowIsSticky = rowIsSticky;
+    StickyFilter.rangeHasStickyRows = rangeHasStickyRows;
+    StickyFilter.rangeIsAllSticky = rangeIsAllSticky;
+    StickyFilter.stickRow = stickRow;
+    StickyFilter.stickRows = stickRows;
+    StickyFilter.unstickRow = unstickRow;
+    StickyFilter.unstickRows = unstickRows;
+
     return StickyFilter;
 })();
 
