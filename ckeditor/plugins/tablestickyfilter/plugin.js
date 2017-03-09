@@ -35,24 +35,24 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
 
         editor.addCommand( 'enableFilter', {
             exec: function( editor ) {
-                StickyFilter.enableFilterForCol(getSelectionEdgeCells().startCell.$);
+                StickyFilter.enableFilterForCol(getSelectionEdgeCells().startCell);
             }
         });
         editor.addCommand( 'enableFilters', {
             exec: function( editor ) {
                 var edgeCells = getSelectionEdgeCells();
-                StickyFilter.enableFiltersForCols(edgeCells.startCell.$, edgeCells.endCell.$);
+                StickyFilter.enableFiltersForCols(edgeCells.startCell, edgeCells.endCell);
             }
         });
         editor.addCommand( 'disableFilter', {
             exec: function( editor ) {
-                StickyFilter.disableFilterForCol(getSelectionEdgeCells().startCell.$);
+                StickyFilter.disableFilterForCol(getSelectionEdgeCells().startCell);
             }
         });
         editor.addCommand( 'disableFilters', {
             exec: function( editor ) {
                 var edgeCells = getSelectionEdgeCells();
-                StickyFilter.disableFiltersForCols(edgeCells.startCell.$, edgeCells.endCell.$);
+                StickyFilter.disableFiltersForCols(edgeCells.startCell, edgeCells.endCell);
             }
         });
         editor.addCommand( 'stickRow', {
