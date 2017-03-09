@@ -509,7 +509,6 @@ window.StickyFilter = (function () {
             height: 0; \n\
         } \n\
         ." + WRAPPER_CLASS + " table { \n\
-            background: white; \n\
             position: absolute; \n\
             min-width: 0; \n\
             max-width: none; \n\
