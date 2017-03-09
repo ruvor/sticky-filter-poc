@@ -282,6 +282,7 @@ window.StickyFilter = (function () {
                     var stickyRows = table.querySelectorAll("tr." + RS_CLASS + ", tr." + RF_CLASS);
                     if (stickyRows.length == 0) continue; //в таблице нет строк для закрепления
                     percentizeTable(table);
+                    addClass(table, TS_CLASS);
                     var peer = table.cloneNode(true);
                     peer.style.display = "none";
                     wrapper.appendChild(peer);
@@ -291,7 +292,6 @@ window.StickyFilter = (function () {
                     for (var j = 0; j < peerRowsToDelete.length; j++) {
                         peerRowsToDelete[j].remove();
                     }
-                    addClass(table, TS_CLASS);
                     stickyTablesCache.push(table);
                 }
                 window.addEventListener("scroll", onWindowScroll);
@@ -303,13 +303,13 @@ window.StickyFilter = (function () {
             function disableTableSticking() {
                 if (!isSticky) return;
                 window.removeEventListener("scroll", onWindowScroll);
+                document.querySelector("." + WRAPPER_CLASS).remove();
                 stickyTablesCache = undefined;
                 var stickyTables = document.querySelectorAll("table." + TS_CLASS);
                 for (var i = 0; i < stickyTables.length; i++) {
                     var table = stickyTables[i];
                     removeClass(table, TS_CLASS);
                 }
-                document.querySelector("." + WRAPPER_CLASS).remove();
                 isSticky = false;
             }
 

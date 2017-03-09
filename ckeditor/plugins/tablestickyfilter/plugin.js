@@ -316,7 +316,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
     },
     onLoad: function() {
         CKEDITOR.addCss(" \n\
-            .row-filter td, .row-filter th { \n\
+            td.column-filter, th.column-filter { \n\
                 background: #feeeff; \n\
             } \n\
             .row-sticky td, .row-sticky th { \n\
