@@ -225,21 +225,24 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                         //выбраны несколько строк
                         if (StickyFilter.rowsAllCanStick(edgeRows.startRow.$, edgeRows.endRow.$)) {
                             //и они могут совместно закрепляться
-                            if (StickyFilter.rangeHasStickyRows(edgeRows.startRow.$, edgeRows.endRow.$)) {
+
+                            if (StickyFilter.rangeIsAllSticky(edgeRows.startRow.$, edgeRows.endRow.$)) {
+                                //и они все закреплённые
+                                tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRows", CKEDITOR.TRISTATE_OFF);
+                            }
+                            else {
+                                //но пока все не закреплены
+                                tabletoolsMenuInjector.injectTablerowSubmenuItem("stickRows", CKEDITOR.TRISTATE_OFF);
+                            } //один вариант показа пунктов меню
+
+                            /*if (StickyFilter.rangeHasStickyRows(edgeRows.startRow.$, edgeRows.endRow.$)) {
                                 //и среди них есть закреплённые
-                                if (StickyFilter.rangeIsAllSticky(edgeRows.startRow.$, edgeRows.endRow.$)) {
-                                    //и они все закреплённые
-                                    tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRows", CKEDITOR.TRISTATE_OFF);
-                                }
-                                else {
-                                    //но закреплены не все
-                                    tabletoolsMenuInjector.injectTablerowSubmenuItem("stickRows", CKEDITOR.TRISTATE_OFF);
-                                }
+                                tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRows", CKEDITOR.TRISTATE_OFF);
                             }
                             else {
                                 //и среди них нет закреплённых
                                 tabletoolsMenuInjector.injectTablerowSubmenuItem("stickRows", CKEDITOR.TRISTATE_OFF);
-                            }
+                            }*/ //другой вариант показа пунктов меню
                         }
                         else {
                             //и они не могут совместно закрепляться
