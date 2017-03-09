@@ -381,6 +381,24 @@ window.StickyFilter = (function () {
         return false;
     }
 
+    function rangeIsAllSticky(startRow, endRow) {
+        if (startRow === endRow) {
+            return rowIsSticky(startRow);
+        }
+        var table = startRow.closest("table");
+        var rows = table.querySelectorAll("tr");
+        var process = false;
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            if (row === startRow) process = true;
+            if (process) {
+                if (!rowIsSticky(row)) return false;
+            }
+            if (row === endRow) break;
+        }
+        return true;
+    }
+
     function enableFilterForCol(col) {
 
     }
@@ -465,6 +483,7 @@ window.StickyFilter = (function () {
     StickyFilter.rowsAllCanStick = rowsAllCanStick;
     StickyFilter.rowIsSticky = rowIsSticky;
     StickyFilter.rangeHasStickyRows = rangeHasStickyRows;
+    StickyFilter.rangeIsAllSticky = rangeIsAllSticky;
     StickyFilter.enableFilterForCol = enableFilterForCol;
     StickyFilter.enableFiltersForCols = enableFilterForCol;
     StickyFilter.disableFilterForCol = disableFilterForCol;

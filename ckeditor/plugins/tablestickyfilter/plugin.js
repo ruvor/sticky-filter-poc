@@ -194,41 +194,63 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                     }
 
                     //активация пунктов меню, относящихся к закреплению
-                    var edgeRows = getSelectionEdgeRows();
-                    if (StickyFilter.rowsAllCanStick(edgeRows.startRow.$, edgeRows.endRow.$)) {
-                        //выбранные строки могут совместно закрепляться (или таковая одна и может)
-                        if (edgeRows.startRow.equals(edgeRows.endRow)) {
-                            //выбрана одна строка
-                            if (StickyFilter.rowIsSticky(edgeRows.startRow.$)) {
-                                //и эта строка закреплена
+                    var edgeRows = getSelectionEdgeRows(); //начальная и конечная строки диапазона текущего выделения
+                    if (edgeRows.startRow.equals(edgeRows.endRow)) {
+                        //выбрана одна строка
+                        var row = edgeRows.startRow;
+                        if (StickyFilter.rowCanStick(row.$)) {
+                            //и она может закрепляться
+                            if (StickyFilter.rowIsSticky(row.$)) {
+                                //и она закреплена
                                 tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRow", CKEDITOR.TRISTATE_OFF);
                             }
                             else {
-                                //и эта строка не закреплена
+                                //и она не закреплена
                                 tabletoolsMenuInjector.injectTablerowSubmenuItem("stickRow", CKEDITOR.TRISTATE_OFF);
                             }
                         }
                         else {
-                            //выбраны несколько строк
+                            //и она не может закрепляться
+                            if (StickyFilter.rowIsSticky(row.$)) {
+                                //но она закреплена
+                                tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRow", CKEDITOR.TRISTATE_OFF);
+                            }
+                            else {
+                                //и она не закреплена
+                                tabletoolsMenuInjector.injectTablerowSubmenuItem("stickRow", CKEDITOR.TRISTATE_DISABLED);
+                            }
+                        }
+                    }
+                    else {
+                        //выбраны несколько строк
+                        if (StickyFilter.rowsAllCanStick(edgeRows.startRow.$, edgeRows.endRow.$)) {
+                            //и они могут совместно закрепляться
                             if (StickyFilter.rangeHasStickyRows(edgeRows.startRow.$, edgeRows.endRow.$)) {
                                 //и среди них есть закреплённые
-                                tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRows", CKEDITOR.TRISTATE_OFF);
+                                if (StickyFilter.rangeIsAllSticky(edgeRows.startRow.$, edgeRows.endRow.$)) {
+                                    //и они все закреплённые
+                                    tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRows", CKEDITOR.TRISTATE_OFF);
+                                }
+                                else {
+                                    //но закреплены не все
+                                    tabletoolsMenuInjector.injectTablerowSubmenuItem("stickRows", CKEDITOR.TRISTATE_OFF);
+                                }
                             }
                             else {
                                 //и среди них нет закреплённых
                                 tabletoolsMenuInjector.injectTablerowSubmenuItem("stickRows", CKEDITOR.TRISTATE_OFF);
                             }
                         }
-                    }
-                    else {
-                        //выбранные строки не могут совместно закрепляться (или таковая одна и не может)
-                        if (edgeRows.startRow.equals(edgeRows.endRow)) {
-                            //выбрана одна строка
-                            tabletoolsMenuInjector.injectTablerowSubmenuItem("stickRow", CKEDITOR.TRISTATE_DISABLED);
-                        }
                         else {
-                            //выбраны несколько строк
-                            tabletoolsMenuInjector.injectTablerowSubmenuItem("stickRows", CKEDITOR.TRISTATE_DISABLED);
+                            //и они не могут совместно закрепляться
+                            if (StickyFilter.rangeHasStickyRows(edgeRows.startRow.$, edgeRows.endRow.$)) {
+                                //но среди них есть закреплённые
+                                tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRows", CKEDITOR.TRISTATE_OFF);
+                            }
+                            else {
+                                //и среди них нет закреплённых
+                                tabletoolsMenuInjector.injectTablerowSubmenuItem("stickRows", CKEDITOR.TRISTATE_DISABLED);
+                            }
                         }
                     }
 
