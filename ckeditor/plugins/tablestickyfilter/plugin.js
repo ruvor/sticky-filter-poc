@@ -170,28 +170,54 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
 
                     //активация пунктов меню, относящихся к фильтрации
                     var edgeCells = getSelectionEdgeCells();
-                    if (StickyFilter.colsAllCanFilter(edgeCells.startCell.$, edgeCells.endCell.$)) {
-                        //столбцы выбранных ячеек все могут фильтроваться (или таковой один и может)
-                        if (edgeCells.startCell.equals(edgeCells.endCell)) {
-                            //выбрана одна ячейка
-                            if (StickyFilter.columnHasFilter(edgeCells.startCell.$)) {
-                                //и её столбец уже фильтруется
+                    if (edgeCells.startCell === edgeCells.endCell) {
+                        //выбран один столбец
+                        var cell = edgeCells.startCell;
+                        if (StickyFilter.colCanFilter(cell)) {
+                            //и он может фильтроваться
+                            if (StickyFilter.colHasFilter(edgeCells.startCell)) {
+                                //и он уже фильтруется
                                 tabletoolsMenuInjector.injectTablecolumnSubmenuItem("disableFilter", CKEDITOR.TRISTATE_OFF);
                             }
                             else {
-                                //и её столбец не фильтруется
+                                //и он пока не фильтруется
                                 tabletoolsMenuInjector.injectTablecolumnSubmenuItem("enableFilter", CKEDITOR.TRISTATE_OFF);
                             }
                         }
                         else {
-                            //выбраны несколько ячеек и, соответственно, столбцов
-                            if (StickyFilter.colsHasFilters(edgeCells.startCell.$, edgeCells.endCell.$)) {
+                            //и он не может фильтроваться
+                            if (StickyFilter.colHasFilter(edgeCells.startCell)) {
+                                //но он фильтруется (возможно, после включения фильтра менялись объединения ячеек)
+                                tabletoolsMenuInjector.injectTablecolumnSubmenuItem("disableFilter", CKEDITOR.TRISTATE_OFF);
+                            }
+                            else {
+                                //и он не фильтруется
+                                tabletoolsMenuInjector.injectTablecolumnSubmenuItem("enableFilter", CKEDITOR.TRISTATE_DISABLED);
+                            }
+                        }
+                    }
+                    else {
+                        //выбраны несколько столбцов
+                        if (StickyFilter.colsAllCanFilter(edgeCells.startCell, edgeCells.endCell)) {
+                            //и они все могут фильтроваться
+                            if (StickyFilter.colsHasFilters(edgeCells.startCell, edgeCells.endCell)) {
                                 //и среди них есть уже фильтрующиеся
                                 tabletoolsMenuInjector.injectTablecolumnSubmenuItem("disableFilters", CKEDITOR.TRISTATE_OFF);
                             }
                             else {
-                                //и среди них нет фильтрующихся
+                                //и среди них нет уже фильтрующихся
                                 tabletoolsMenuInjector.injectTablecolumnSubmenuItem("enableFilters", CKEDITOR.TRISTATE_OFF);
+                            }
+                        }
+                        else {
+                            //но они не все могут фильтроваться
+                            if (StickyFilter.colsHasFilters(edgeCells.startCell, edgeCells.endCell)) {
+                                //и при этом среди них есть уже фильтрующиеся
+                                tabletoolsMenuInjector.injectTablecolumnSubmenuItem("disableFilters", CKEDITOR.TRISTATE_OFF);
+                            }
+                            else {
+                                //и среди них нет уже фильтрующихся
+                                tabletoolsMenuInjector.injectTablecolumnSubmenuItem("enableFilters", CKEDITOR.TRISTATE_DISABLED);
                             }
                         }
                     }
