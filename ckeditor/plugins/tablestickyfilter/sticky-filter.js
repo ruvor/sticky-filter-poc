@@ -227,7 +227,6 @@ window.StickyFilter = (function () {
                 var allTables = document.querySelectorAll("table");
                 for (var i = 0; i < allTables.length; i++) {
                     var table = allTables[i];
-                    //if (hasClass(table, TF_CLASS)) continue; //из-за проверки isFiltering теперь не нужно
                     var allFilteringCells = table.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
                     //предполагается, что такие ячейки будут в одной строке таблицы
                     if (allFilteringCells.length == 0) continue; //если в таблице нет фильтровальных ячеек
@@ -274,20 +273,12 @@ window.StickyFilter = (function () {
 
             function enableTableSticking() {
                 if (isSticky) return;
-                /*var wrapper = document.querySelector("." + WRAPPER_CLASS);
-                if (!wrapper) {
-                    wrapper = document.createElement("div");
-                    wrapper.className = WRAPPER_CLASS;
-                    document.body.appendChild(wrapper);
-                    stickyTablesCache = [];
-                }*/ //из-за проверки isSticky теперь можно проще
                 var wrapper = document.createElement("div");
                 wrapper.className = WRAPPER_CLASS;
                 stickyTablesCache = [];
                 var allTables = document.querySelectorAll("table");
                 for (var i = 0; i < allTables.length; i++) {
                     var table = allTables[i];
-                    //if (hasClass(table, TS_CLASS)) continue; //из-за проверки isSticky теперь не нужно
                     var stickyRows = table.querySelectorAll("tr." + RS_CLASS + ", tr." + RF_CLASS);
                     if (stickyRows.length == 0) continue; //в таблице нет строк для закрепления
                     percentizeTable(table);
