@@ -156,13 +156,6 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 if ( element.getAscendant( { th: 1, td: 1 }, true ) ) {
                     //если меню вызывается на ячейке
 
-                    /*return {
-                        enableFilter: CKEDITOR.TRISTATE_OFF,
-                        disableFilter: CKEDITOR.TRISTATE_OFF,
-                        stickRow: CKEDITOR.TRISTATE_OFF,
-                        unstickRow: CKEDITOR.TRISTATE_OFF
-                    }*/
-
                     tabletoolsMenuInjector.clear();
 
                     //активация пунктов меню, относящихся к фильтрации
