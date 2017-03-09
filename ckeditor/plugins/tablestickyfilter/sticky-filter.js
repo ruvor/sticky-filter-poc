@@ -177,7 +177,7 @@ window.StickyFilter = (function () {
         }
         table.insertBefore(colgroup, table.firstChild);
         table.style.tableLayout = "fixed";
-        table.className += " " + TP_CLASS;
+        addClass(table, TP_CLASS);
     }
 
     function countRowCols(row) {
@@ -191,6 +191,28 @@ window.StickyFilter = (function () {
 
     function countTableCols(table) {
         return countRowCols(table.querySelector("tr"));
+    }
+
+    function hasClass(element, cssClass) {
+        return new RegExp("\\b" + cssClass + "\\b").test(element.className);
+    }
+
+    function addClass(element, cssClass) {
+        var oldClasses = element.className;
+        if (hasClass(element, cssClass)) return;
+        var newClasses = oldClasses;
+        if (/\S$/.test(oldClasses)) newClasses += " ";
+        newClasses += cssClass;
+        element.className = newClasses;
+    }
+
+    function removeClass(element, cssClass) {
+        var oldClasses = element.className;
+        if (!hasClass(element, cssClass)) return;
+        var newClasses = oldClasses;
+        newClasses = oldClasses.replace(new RegExp("\\s?" + cssClass + "\\b"), "");
+        if (/^\s*$/.test(newClasses)) element.removeAttribute("class");
+        else element.className = newClasses;
     }
 
     // /private methods
@@ -216,8 +238,8 @@ window.StickyFilter = (function () {
                 filterInput.addEventListener("input", onTableFilterInput);
                 filteringCells[j].appendChild(filterInput);
             }
-            filteringRow.className += " " + RF_CLASS;
-            table.className += " " + TF_CLASS;
+            addClass(filteringRow, RF_CLASS);
+            addClass(table, TF_CLASS);
         }
         if (isSticky) {
             disableTableSticking();
@@ -232,13 +254,13 @@ window.StickyFilter = (function () {
         for (var i = 0; i < filteredTables.length; i++) {
             var table = filteredTables[i];
             var filteringRow = table.querySelector("." + RF_CLASS);
-            filteringRow.className = filteringRow.className.replace(" " + RF_CLASS, "");
+            removeClass(filteringRow, RF_CLASS);
             var filteringCells = filteringRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
             for (var j = 0; j < filteringCells.length; j++) {
                 filteringCells[j].querySelector("input[type=text]").remove();
             }
             unfilterTable(table);
-            table.className = table.className.replace(" " + TF_CLASS, "");
+            removeClass(table, TF_CLASS);
         }
         if (isSticky) {
             disableTableSticking();
@@ -276,7 +298,7 @@ window.StickyFilter = (function () {
             for (var j = 0; j < peerRowsToDelete.length; j++) {
                 peerRowsToDelete[j].remove();
             }
-            table.className += " " + TS_CLASS;
+            addClass(table, TS_CLASS);
             stickyTables.push(table);
         }
         window.addEventListener("scroll", onWindowScroll);
@@ -289,7 +311,7 @@ window.StickyFilter = (function () {
         var stickyTables = document.querySelectorAll("table." + TS_CLASS);
         for (var i = 0; i < stickyTables.length; i++) {
             var table = stickyTables[i];
-            table.className = table.className.replace(" " + TS_CLASS, "");
+            removeClass(table, TS_CLASS);
         }
         window.removeEventListener("scroll", onWindowScroll);
         stickyTables = undefined;
@@ -360,7 +382,7 @@ window.StickyFilter = (function () {
     }
 
     function rowIsSticky(row) {
-        return new RegExp("\\b" + RS_CLASS + "\\b").test(row.className);
+        return hasClass(row, RS_CLASS);
     }
 
     function rangeHasStickyRows(startRow, endRow) {
@@ -416,7 +438,7 @@ window.StickyFilter = (function () {
     }
 
     function stickRow(row) {
-        row.className += " " + RS_CLASS;
+        addClass(row, RS_CLASS);
     }
 
     function stickRows(startRow, endRow) {
@@ -426,13 +448,13 @@ window.StickyFilter = (function () {
         for (var i = 0; i < rows.length; i++) {
             var row = rows[i];
             if (row === startRow) process = true;
-            if (process) row.className += " " + RS_CLASS;
+            if (process) stickRow(row);
             if (row === endRow) break;
         }
     }
 
     function unstickRow(row) {
-        row.className = row.className.replace(" " + RS_CLASS, "");
+        removeClass(row, RS_CLASS)
     }
 
     function unstickRows(startRow, endRow) {
@@ -442,7 +464,7 @@ window.StickyFilter = (function () {
         for (var i = 0; i < rows.length; i++) {
             var row = rows[i];
             if (row === startRow) process = true;
-            if (process) row.className = row.className.replace(" " + RS_CLASS, "");
+            if (process) unstickRow(row);
             if (row === endRow) break;
         }
     }
