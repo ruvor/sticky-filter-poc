@@ -1,3 +1,5 @@
+//TODO: добавить JSDocов
+//TODO: переписать с использованием children, nextSiblingElement, table.rows, tr.cells, tr.rowIndex, td.cellIndex и т. п. (в sticky-filter, где не юзаются методы цкедитора)
 CKEDITOR.plugins.add( 'tablestickyfilter', {
     requires: 'tabletools,dialog,contextmenu',
     init: function( editor ) {
