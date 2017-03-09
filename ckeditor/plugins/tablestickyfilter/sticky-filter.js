@@ -496,19 +496,19 @@ window.StickyFilter = (function () {
     // /public methods
 
     var requiredStyles = "\
-        .table-filter input { \n\
+        ." + TF_CLASS + " input { \n\
             box-sizing: border-box; \n\
             display: block; \n\
             width: 100%; \n\
         } \n\
-        .sticky-wrapper { \n\
+        ." + WRAPPER_CLASS + " { \n\
             position: fixed; \n\
             top: 0; \n\
             left: 0; \n\
             width: 100%; \n\
             height: 0; \n\
         } \n\
-        .sticky-wrapper table { \n\
+        ." + WRAPPER_CLASS + " table { \n\
             background: white; \n\
             position: absolute; \n\
             min-width: 0; \n\
