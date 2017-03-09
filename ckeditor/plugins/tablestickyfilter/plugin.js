@@ -206,7 +206,9 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                             //и она не может закрепляться
                             if (StickyFilter.rowIsSticky(row.$)) {
                                 //но она закреплена
-                                tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRow", CKEDITOR.TRISTATE_OFF);
+                                tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRow", CKEDITOR.TRISTATE_DISABLED);
+                                //нельзя позволять откреплять её, так как это может разорвать допустимый
+                                //закреплённый диапазон с объединёнными ячейками
                             }
                             else {
                                 //и она не закреплена
@@ -241,7 +243,9 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                             //и они не могут совместно закрепляться
                             if (StickyFilter.rangeHasStickyRows(edgeRows.startRow.$, edgeRows.endRow.$)) {
                                 //но среди них есть закреплённые
-                                tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRows", CKEDITOR.TRISTATE_OFF);
+                                tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRows", CKEDITOR.TRISTATE_DISABLED);
+                                //нельзя позволять откреплять их, так как это может разорвать допустимый
+                                //закреплённый диапазон с объединёнными ячейками
                             }
                             else {
                                 //и среди них нет закреплённых
