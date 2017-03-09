@@ -157,7 +157,7 @@ window.StickyFilter = (function () {
         }
 
         function percentizeTable(table) {
-            if (table.matches("." + TP_CLASS)) return;
+            if (hasClass(table, TP_CLASS)) return;
             var firstRow = table.querySelector("tr");
             var rowWidth = firstRow.offsetWidth;
             var firstRowCells = firstRow.children;
@@ -227,7 +227,7 @@ window.StickyFilter = (function () {
                 var allTables = document.querySelectorAll("table");
                 for (var i = 0; i < allTables.length; i++) {
                     var table = allTables[i];
-                    //if (table.matches("." + TF_CLASS)) continue; //из-за проверки isFiltering теперь не нужно
+                    //if (hasClass(table, TF_CLASS)) continue; //из-за проверки isFiltering теперь не нужно
                     var allFilteringCells = table.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
                     //предполагается, что такие ячейки будут в одной строке таблицы
                     if (allFilteringCells.length == 0) continue; //если в таблице нет фильтровальных ячеек
@@ -288,7 +288,7 @@ window.StickyFilter = (function () {
                 var allTables = document.querySelectorAll("table");
                 for (var i = 0; i < allTables.length; i++) {
                     var table = allTables[i];
-                    //if (table.matches("." + TS_CLASS)) continue; //из-за проверки isSticky теперь не нужно
+                    //if (hasClass(table, TS_CLASS)) continue; //из-за проверки isSticky теперь не нужно
                     var stickyRows = table.querySelectorAll("tr." + RS_CLASS + ", tr." + RF_CLASS);
                     if (stickyRows.length == 0) continue; //в таблице нет строк для закрепления
                     percentizeTable(table);
