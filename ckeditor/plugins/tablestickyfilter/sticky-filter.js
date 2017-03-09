@@ -15,6 +15,7 @@ window.StickyFilter = (function () {
     var isFiltering = false;
     var isSticky = false;
 
+    //TODO: убрать из прототипов, чтобы не засорять их
     //несколько полифиллов
         if (!Element.prototype.matches) {
             Element.prototype.matches = Element.prototype.matchesSelector ||
