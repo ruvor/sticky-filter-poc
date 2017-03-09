@@ -339,6 +339,22 @@ window.StickyFilter = (function () {
                 return true;
             }
 
+            function enableFilterForCol(col) {
+
+            }
+
+            function enableFiltersForCols(startCol, endCol) {
+
+            }
+
+            function disableFilterForCol(col) {
+
+            }
+
+            function disableFiltersForCols(startCol, endCol) {
+
+            }
+
             function rowCanStick(row) {
                 return rowsAllCanStick(row, row);
             }
@@ -426,22 +442,6 @@ window.StickyFilter = (function () {
                     if (row === endRow) break;
                 }
                 return true;
-            }
-
-            function enableFilterForCol(col) {
-
-            }
-
-            function enableFiltersForCols(startCol, endCol) {
-
-            }
-
-            function disableFilterForCol(col) {
-
-            }
-
-            function disableFiltersForCols(startCol, endCol) {
-
             }
 
             function stickRow(row) {
