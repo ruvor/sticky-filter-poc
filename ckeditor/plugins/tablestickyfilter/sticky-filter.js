@@ -42,433 +42,443 @@ window.StickyFilter = (function () {
 
     // private methods
 
-    function onTableFilterInput(e) {
-        var peerInput = findPeerInput(e.target);
-        if (peerInput) {
+        function onTableFilterInput(e) {
+            var peerInput = findPeerInput(e.target);
+            if (peerInput) {
+                peerInput.value = e.target.value;
+            }
+            filterTable(e.target.closest("table"));
+        }
+
+        function onStickyTableFilterInput(e) {
+            if (!e.target.matches("." + CF_CLASS + " input[type=text]")) return;
+            var peerInput = findPeerInput(e.target);
             peerInput.value = e.target.value;
+            var event = document.createEvent("Event");
+            event.initEvent("input", true, true);
+            peerInput.dispatchEvent(event);
         }
-        filterTable(e.target.closest("table"));
-    }
 
-    function onStickyTableFilterInput(e) {
-        if (!e.target.matches("." + CF_CLASS + " input[type=text]")) return;
-        var peerInput = findPeerInput(e.target);
-        peerInput.value = e.target.value;
-        var event = document.createEvent("Event");
-        event.initEvent("input", true, true);
-        peerInput.dispatchEvent(event);
-    }
-
-    function findPeerInput(origInput) {
-        var num;
-        var origTable = origInput.closest("table");
-        var peerTable = origTable.peer;
-        if (!peerTable) return null;
-        var inputs = origTable.querySelectorAll("." + CF_CLASS + " input[type=text]");
-        for (var i = 0; i < inputs.length; i++) {
-            if (inputs[i] == origInput) {
-                num = i;
-                break;
-            }
-        }
-        var peerInput = peerTable.querySelectorAll("." + CF_CLASS + " input[type=text]")[num];
-        return peerInput;
-    }
-
-    function filterTable(table) {
-        var filterRow = table.querySelector("tr." + RF_CLASS);
-        var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
-        if (!filterRow || rows.length == 0) return;
-        var filterValues = {};
-        var filterCells = filterRow.querySelectorAll("th, td");
-        for (var i = 0; i < filterCells.length; i++) {
-            var filterInput = filterCells[i].querySelector("." + CF_CLASS + " input[type=text]");
-            if (filterInput && filterInput.value) {
-                filterValues[i] = filterInput.value.toLowerCase();
-            }
-        }
-        var rowsToHide = [];
-        var rowsToShow = [];
-        for (var j = 0; j < rows.length; j++) {
-            var row = rows[j];
-            var hideRow = false;
-            var cols = row.querySelectorAll("th, td");
-            for (var filteringColIndex in filterValues) {
-                if (cols[filteringColIndex].textContent.toLowerCase().indexOf(filterValues[filteringColIndex]) < 0) {
-                    hideRow = true;
+        function findPeerInput(origInput) {
+            var num;
+            var origTable = origInput.closest("table");
+            var peerTable = origTable.peer;
+            if (!peerTable) return null;
+            var inputs = origTable.querySelectorAll("." + CF_CLASS + " input[type=text]");
+            for (var i = 0; i < inputs.length; i++) {
+                if (inputs[i] == origInput) {
+                    num = i;
                     break;
                 }
             }
-            if (hideRow) rowsToHide.push(row);
-            else rowsToShow.push(row);
+            var peerInput = peerTable.querySelectorAll("." + CF_CLASS + " input[type=text]")[num];
+            return peerInput;
         }
-        for (i = 0; i < rowsToHide.length; i++) rowsToHide[i].style.display = "none";
-        for (i = 0; i < rowsToShow.length; i++) rowsToShow[i].style.display = "table-row";
-    }
 
-    function unfilterTable(table) {
-        var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
-        for (var j = 0; j < rows.length; j++) {
-            var row = rows[j];
-            row.style.display = "table-row";
-        }
-    }
-
-    function onWindowScroll(e) {
-        for (var i = 0; i < stickyTables.length; i++) {
-            var table = stickyTables[i];
-            var tableRect = table.getBoundingClientRect();
-            var peer = table.peer;
-            if (tableRect.top > 0 || tableRect.bottom <= 0) {
-                peer.style.display = "none";
-                continue;
-            }
-            peer.style.left = tableRect.left + "px";
-            peer.style.width = table.offsetWidth + "px";
-            peer.style.visibility = "hidden";
-            peer.style.display = "table";
-            var peerRows = peer.querySelectorAll("tr");
-            var peerRosHeights = [];
-            for (var j = 0; j < peerRows.length; j++) {
-                peerRows[j].style.display = "table-row";
-                peerRosHeights[j] = peerRows[j].offsetHeight;
-                peerRows[j].style.display = "none";
-            }
-            peer.style.visibility = "visible";
-
-            var stickyRows = table.querySelectorAll("tr." + RS_CLASS + ", tr." + RF_CLASS);
-            var acc = 0;
-            for (var k = 0; k < stickyRows.length; k++) {
-                var stickyRow = stickyRows[k];
-                var rowRect = stickyRow.getBoundingClientRect();
-                if (rowRect.top < acc) {
-                    peerRows[k].style.display = "table-row";
-                    acc += peerRosHeights[k];
+        function filterTable(table) {
+            var filterRow = table.querySelector("tr." + RF_CLASS);
+            var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
+            if (!filterRow || rows.length == 0) return;
+            var filterValues = {};
+            var filterCells = filterRow.querySelectorAll("th, td");
+            for (var i = 0; i < filterCells.length; i++) {
+                var filterInput = filterCells[i].querySelector("." + CF_CLASS + " input[type=text]");
+                if (filterInput && filterInput.value) {
+                    filterValues[i] = filterInput.value.toLowerCase();
                 }
             }
-            var diff = tableRect.bottom - peer.offsetHeight;
-            if (diff < 0) {
-                peer.style.top = diff + "px";
+            var rowsToHide = [];
+            var rowsToShow = [];
+            for (var j = 0; j < rows.length; j++) {
+                var row = rows[j];
+                var hideRow = false;
+                var cols = row.querySelectorAll("th, td");
+                for (var filteringColIndex in filterValues) {
+                    if (cols[filteringColIndex].textContent.toLowerCase().indexOf(filterValues[filteringColIndex]) < 0) {
+                        hideRow = true;
+                        break;
+                    }
+                }
+                if (hideRow) rowsToHide.push(row);
+                else rowsToShow.push(row);
             }
-            else {
-                peer.style.top = 0;
+            for (i = 0; i < rowsToHide.length; i++) rowsToHide[i].style.display = "none";
+            for (i = 0; i < rowsToShow.length; i++) rowsToShow[i].style.display = "table-row";
+        }
+
+        function unfilterTable(table) {
+            var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
+            for (var j = 0; j < rows.length; j++) {
+                var row = rows[j];
+                row.style.display = "table-row";
             }
         }
-    }
 
-    function percentizeTable(table) {
-        if (table.matches("." + TP_CLASS)) return;
-        var firstRow = table.querySelector("tr");
-        var rowWidth = firstRow.offsetWidth;
-        var firstRowCells = firstRow.children;
-        var cellWidths = [];
-        for (var j = 0; j < firstRowCells.length; j++) {
-            var cell = firstRowCells[j];
-            cell.style.boxSizing = "border-box";
-            cellWidths[j] = cell.offsetWidth;
+        function onWindowScroll(e) {
+            for (var i = 0; i < stickyTables.length; i++) {
+                var table = stickyTables[i];
+                var tableRect = table.getBoundingClientRect();
+                var peer = table.peer;
+                if (tableRect.top > 0 || tableRect.bottom <= 0) {
+                    peer.style.display = "none";
+                    continue;
+                }
+                peer.style.left = tableRect.left + "px";
+                peer.style.width = table.offsetWidth + "px";
+                peer.style.visibility = "hidden";
+                peer.style.display = "table";
+                var peerRows = peer.querySelectorAll("tr");
+                var peerRosHeights = [];
+                for (var j = 0; j < peerRows.length; j++) {
+                    peerRows[j].style.display = "table-row";
+                    peerRosHeights[j] = peerRows[j].offsetHeight;
+                    peerRows[j].style.display = "none";
+                }
+                peer.style.visibility = "visible";
+
+                var stickyRows = table.querySelectorAll("tr." + RS_CLASS + ", tr." + RF_CLASS);
+                var acc = 0;
+                for (var k = 0; k < stickyRows.length; k++) {
+                    var stickyRow = stickyRows[k];
+                    var rowRect = stickyRow.getBoundingClientRect();
+                    if (rowRect.top < acc) {
+                        peerRows[k].style.display = "table-row";
+                        acc += peerRosHeights[k];
+                    }
+                }
+                var diff = tableRect.bottom - peer.offsetHeight;
+                if (diff < 0) {
+                    peer.style.top = diff + "px";
+                }
+                else {
+                    peer.style.top = 0;
+                }
+            }
         }
-        var colgroup = table.querySelector("colgroup");
-        if (colgroup) colgroup.remove();
-        colgroup = document.createElement("colgroup");
-        for (j = 0; j < firstRowCells.length; j++) {
-            cell = firstRowCells[j];
-            var col = document.createElement("col");
-            col.style.width = (cellWidths[j] / rowWidth * 100) + "%";
-            colgroup.appendChild(col);
+
+        function percentizeTable(table) {
+            if (table.matches("." + TP_CLASS)) return;
+            var firstRow = table.querySelector("tr");
+            var rowWidth = firstRow.offsetWidth;
+            var firstRowCells = firstRow.children;
+            var cellWidths = [];
+            for (var j = 0; j < firstRowCells.length; j++) {
+                var cell = firstRowCells[j];
+                cell.style.boxSizing = "border-box";
+                cellWidths[j] = cell.offsetWidth;
+            }
+            var colgroup = table.querySelector("colgroup");
+            if (colgroup) colgroup.remove();
+            colgroup = document.createElement("colgroup");
+            for (j = 0; j < firstRowCells.length; j++) {
+                cell = firstRowCells[j];
+                var col = document.createElement("col");
+                col.style.width = (cellWidths[j] / rowWidth * 100) + "%";
+                colgroup.appendChild(col);
+            }
+            table.insertBefore(colgroup, table.firstChild);
+            table.style.tableLayout = "fixed";
+            addClass(table, TP_CLASS);
         }
-        table.insertBefore(colgroup, table.firstChild);
-        table.style.tableLayout = "fixed";
-        addClass(table, TP_CLASS);
-    }
 
-    function countRowCols(row) {
-        var cells = row.querySelectorAll("th, td");
-        var colsNum = 0;
-        for (var i = 0; i < cells.length; i++) {
-            colsNum += cells[i].colSpan;
+        function countRowCols(row) {
+            var cells = row.querySelectorAll("th, td");
+            var colsNum = 0;
+            for (var i = 0; i < cells.length; i++) {
+                colsNum += cells[i].colSpan;
+            }
+            return colsNum;
         }
-        return colsNum;
-    }
 
-    function countTableCols(table) {
-        return countRowCols(table.querySelector("tr"));
-    }
+        function countTableCols(table) {
+            return countRowCols(table.querySelector("tr"));
+        }
 
-    function hasClass(element, cssClass) {
-        return new RegExp("\\b" + cssClass + "\\b").test(element.className);
-    }
+        function hasClass(element, cssClass) {
+            return new RegExp("\\b" + cssClass + "\\b").test(element.className);
+        }
 
-    function addClass(element, cssClass) {
-        var oldClasses = element.className;
-        if (hasClass(element, cssClass)) return;
-        var newClasses = oldClasses;
-        if (/\S$/.test(oldClasses)) newClasses += " ";
-        newClasses += cssClass;
-        element.className = newClasses;
-    }
+        function addClass(element, cssClass) {
+            var oldClasses = element.className;
+            if (hasClass(element, cssClass)) return;
+            var newClasses = oldClasses;
+            if (/\S$/.test(oldClasses)) newClasses += " ";
+            newClasses += cssClass;
+            element.className = newClasses;
+        }
 
-    function removeClass(element, cssClass) {
-        var oldClasses = element.className;
-        if (!hasClass(element, cssClass)) return;
-        var newClasses = oldClasses;
-        newClasses = oldClasses.replace(new RegExp("\\s?" + cssClass + "\\b"), "");
-        if (/^\s*$/.test(newClasses)) element.removeAttribute("class");
-        else element.className = newClasses;
-    }
+        function removeClass(element, cssClass) {
+            var oldClasses = element.className;
+            if (!hasClass(element, cssClass)) return;
+            var newClasses = oldClasses;
+            newClasses = oldClasses.replace(new RegExp("\\s?" + cssClass + "\\b"), "");
+            if (/^\s*$/.test(newClasses)) element.removeAttribute("class");
+            else element.className = newClasses;
+        }
 
     // /private methods
 
     // public methods
 
-    function enableTableFiltering() {
-        if (isFiltering) return;
-        var allTables = document.querySelectorAll("table");
-        for (var i = 0; i < allTables.length; i++) {
-            var table = allTables[i];
-            //if (table.matches("." + TF_CLASS)) continue; //из-за проверки isFiltering теперь не нужно
-            var allFilteringCells = table.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
-            //предполагается, что такие ячейки будут в одной строке таблицы
-            if (allFilteringCells.length == 0) continue; //если в таблице нет фильтровальных ячеек
-            percentizeTable(table);
-            var filteringRow = allFilteringCells[0].closest("tr");
-            var filteringCells = filteringRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
-            for (var j = 0; j < filteringCells.length; j++) {
-                cell = filteringCells[j];
-                var filterInput = document.createElement("input");
-                filterInput.setAttribute("type", "text");
-                filterInput.addEventListener("input", onTableFilterInput);
-                filteringCells[j].appendChild(filterInput);
-            }
-            addClass(filteringRow, RF_CLASS);
-            addClass(table, TF_CLASS);
-        }
-        if (isSticky) {
-            disableTableSticking();
-            enableTableSticking();
-        }
-        isFiltering = true;
-    }
+        // методы для вызова при показе содержимого
 
-    function disableTableFiltering() {
-        if (!isFiltering) return;
-        var filteredTables = document.querySelectorAll("table." + TF_CLASS);
-        for (var i = 0; i < filteredTables.length; i++) {
-            var table = filteredTables[i];
-            var filteringRow = table.querySelector("." + RF_CLASS);
-            removeClass(filteringRow, RF_CLASS);
-            var filteringCells = filteringRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
-            for (var j = 0; j < filteringCells.length; j++) {
-                filteringCells[j].querySelector("input[type=text]").remove();
-            }
-            unfilterTable(table);
-            removeClass(table, TF_CLASS);
-        }
-        if (isSticky) {
-            disableTableSticking();
-            enableTableSticking();
-        }
-        isFiltering = false;
-    }
-
-    function enableTableSticking() {
-        if (isSticky) return;
-        /*var wrapper = document.querySelector("." + WRAPPER_CLASS);
-        if (!wrapper) {
-            wrapper = document.createElement("div");
-            wrapper.className = WRAPPER_CLASS;
-            document.body.appendChild(wrapper);
-            stickyTables = [];
-        }*/ //из-за проверки isSticky теперь можно проще
-        var wrapper = document.createElement("div");
-        wrapper.className = WRAPPER_CLASS;
-        document.body.appendChild(wrapper);
-        stickyTables = [];
-        var allTables = document.querySelectorAll("table");
-        for (var i = 0; i < allTables.length; i++) {
-            var table = allTables[i];
-            //if (table.matches("." + TS_CLASS)) continue; //из-за проверки isSticky теперь не нужно
-            var stickyRows = table.querySelectorAll("tr." + RS_CLASS + ", tr." + RF_CLASS);
-            if (stickyRows.length == 0) continue; //в таблице нет строк для закрепления
-            percentizeTable(table);
-            var peer = table.cloneNode(true);
-            peer.style.display = "none";
-            wrapper.appendChild(peer);
-            table.peer = peer;
-            peer.peer = table;
-            var peerRowsToDelete = peer.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
-            for (var j = 0; j < peerRowsToDelete.length; j++) {
-                peerRowsToDelete[j].remove();
-            }
-            addClass(table, TS_CLASS);
-            stickyTables.push(table);
-        }
-        window.addEventListener("scroll", onWindowScroll);
-        wrapper.addEventListener("input", onStickyTableFilterInput);
-        isSticky = true;
-    }
-
-    function disableTableSticking() {
-        if (!isSticky) return;
-        var stickyTables = document.querySelectorAll("table." + TS_CLASS);
-        for (var i = 0; i < stickyTables.length; i++) {
-            var table = stickyTables[i];
-            removeClass(table, TS_CLASS);
-        }
-        window.removeEventListener("scroll", onWindowScroll);
-        stickyTables = undefined;
-        var wrapper = document.querySelector("." + WRAPPER_CLASS);
-        if (wrapper) wrapper.remove();
-        isSticky = false;
-    }
-
-    function colsAllCanFilter() {
-        return true;
-    }
-
-    function columnHasFilter(element) {
-        return true;
-    }
-
-    function colsHasFilters() {
-        return true;
-    }
-
-    function rowCanStick(row) {
-        return rowsAllCanStick(row, row);
-    }
-
-    function rowsAllCanStick(startRow, endRow) {
-        var table = startRow.closest("table");
-        var colsNum = countTableCols(table);
-        var firstRangeRowColsNum = countRowCols(startRow);
-        if (firstRangeRowColsNum != colsNum) {
-            //если количества столбцов, вычисленные по первой строке таблицы и по первой
-            //строке диапазона, не совпадают, значит в первой строке диапазона есть 
-            //объединённые ячейки из более верхних строк, такие строки закреплять нельзя
-            return false;
-        }
-        var rows = table.querySelectorAll("tr");
-        var rowsRangeHeight = 0;
-        var process = false;
-        for (var i = 0; i < rows.length; i++) { //TODO: такой цикл выделить в спецфункцию функции
-            var row = rows[i];
-            if (row === startRow) process = true;
-            if (process) rowsRangeHeight++;
-            if (row === endRow) break;
-        }
-        //вычислено rowsRangeHeight - высота запрошенного диапазона строк
-        var maxRowSpanDepth = 0;
-        var rowSpanDepthAcc;
-        var rangeRowNum = 0;
-        process = false;
-        for (i = 0; i < rows.length; i++) {
-            row = rows[i];
-            if (row === startRow) process = true;
-            if (process) {
-                rowSpanDepthAcc = 0;
-                var cells = row.querySelectorAll("th, td");
-                for (var j = 0; j < cells.length; j++) {
-                    var cell = cells[j];
-                    if (cell.rowSpan > rowSpanDepthAcc) rowSpanDepthAcc = cell.rowSpan;
+            function enableTableFiltering() {
+                if (isFiltering) return;
+                var allTables = document.querySelectorAll("table");
+                for (var i = 0; i < allTables.length; i++) {
+                    var table = allTables[i];
+                    //if (table.matches("." + TF_CLASS)) continue; //из-за проверки isFiltering теперь не нужно
+                    var allFilteringCells = table.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
+                    //предполагается, что такие ячейки будут в одной строке таблицы
+                    if (allFilteringCells.length == 0) continue; //если в таблице нет фильтровальных ячеек
+                    percentizeTable(table);
+                    var filteringRow = allFilteringCells[0].closest("tr");
+                    var filteringCells = filteringRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
+                    for (var j = 0; j < filteringCells.length; j++) {
+                        cell = filteringCells[j];
+                        var filterInput = document.createElement("input");
+                        filterInput.setAttribute("type", "text");
+                        filterInput.addEventListener("input", onTableFilterInput);
+                        filteringCells[j].appendChild(filterInput);
+                    }
+                    addClass(filteringRow, RF_CLASS);
+                    addClass(table, TF_CLASS);
                 }
-                var rowSpanDepth = rowSpanDepthAcc + rangeRowNum; //глубина объединённости ячеек по состоянию на текущую строку
-                if (rowSpanDepth > maxRowSpanDepth) maxRowSpanDepth = rowSpanDepth;
-                rangeRowNum++;
+                if (isSticky) {
+                    disableTableSticking();
+                    enableTableSticking();
+                }
+                isFiltering = true;
             }
-            if (row === endRow) break;
-        }
-        //вычислено maxRowSpanDepth - максимальная глубина объединенности ячеек в диапазоне,
-        //если она превышает высоту диапазона, такие строки закреплять нельзя
-        return maxRowSpanDepth <= rowsRangeHeight;
-    }
 
-    function rowIsSticky(row) {
-        return hasClass(row, RS_CLASS);
-    }
-
-    function rangeHasStickyRows(startRow, endRow) {
-        if (startRow === endRow) {
-            return rowIsSticky(startRow);
-        }
-        var table = startRow.closest("table");
-        var rows = table.querySelectorAll("tr");
-        var process = false;
-        for (var i = 0; i < rows.length; i++) {
-            var row = rows[i];
-            if (row === startRow) process = true;
-            if (process) {
-                if (rowIsSticky(row)) return true;
+            function disableTableFiltering() {
+                if (!isFiltering) return;
+                var filteredTables = document.querySelectorAll("table." + TF_CLASS);
+                for (var i = 0; i < filteredTables.length; i++) {
+                    var table = filteredTables[i];
+                    var filteringRow = table.querySelector("." + RF_CLASS);
+                    removeClass(filteringRow, RF_CLASS);
+                    var filteringCells = filteringRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
+                    for (var j = 0; j < filteringCells.length; j++) {
+                        filteringCells[j].querySelector("input[type=text]").remove();
+                    }
+                    unfilterTable(table);
+                    removeClass(table, TF_CLASS);
+                }
+                if (isSticky) {
+                    disableTableSticking();
+                    enableTableSticking();
+                }
+                isFiltering = false;
             }
-            if (row === endRow) break;
-        }
-        return false;
-    }
 
-    function rangeIsAllSticky(startRow, endRow) {
-        if (startRow === endRow) {
-            return rowIsSticky(startRow);
-        }
-        var table = startRow.closest("table");
-        var rows = table.querySelectorAll("tr");
-        var process = false;
-        for (var i = 0; i < rows.length; i++) {
-            var row = rows[i];
-            if (row === startRow) process = true;
-            if (process) {
-                if (!rowIsSticky(row)) return false;
+            function enableTableSticking() {
+                if (isSticky) return;
+                /*var wrapper = document.querySelector("." + WRAPPER_CLASS);
+                if (!wrapper) {
+                    wrapper = document.createElement("div");
+                    wrapper.className = WRAPPER_CLASS;
+                    document.body.appendChild(wrapper);
+                    stickyTables = [];
+                }*/ //из-за проверки isSticky теперь можно проще
+                var wrapper = document.createElement("div");
+                wrapper.className = WRAPPER_CLASS;
+                document.body.appendChild(wrapper);
+                stickyTables = [];
+                var allTables = document.querySelectorAll("table");
+                for (var i = 0; i < allTables.length; i++) {
+                    var table = allTables[i];
+                    //if (table.matches("." + TS_CLASS)) continue; //из-за проверки isSticky теперь не нужно
+                    var stickyRows = table.querySelectorAll("tr." + RS_CLASS + ", tr." + RF_CLASS);
+                    if (stickyRows.length == 0) continue; //в таблице нет строк для закрепления
+                    percentizeTable(table);
+                    var peer = table.cloneNode(true);
+                    peer.style.display = "none";
+                    wrapper.appendChild(peer);
+                    table.peer = peer;
+                    peer.peer = table;
+                    var peerRowsToDelete = peer.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
+                    for (var j = 0; j < peerRowsToDelete.length; j++) {
+                        peerRowsToDelete[j].remove();
+                    }
+                    addClass(table, TS_CLASS);
+                    stickyTables.push(table);
+                }
+                window.addEventListener("scroll", onWindowScroll);
+                wrapper.addEventListener("input", onStickyTableFilterInput);
+                isSticky = true;
             }
-            if (row === endRow) break;
-        }
-        return true;
-    }
 
-    function enableFilterForCol(col) {
+            function disableTableSticking() {
+                if (!isSticky) return;
+                var stickyTables = document.querySelectorAll("table." + TS_CLASS);
+                for (var i = 0; i < stickyTables.length; i++) {
+                    var table = stickyTables[i];
+                    removeClass(table, TS_CLASS);
+                }
+                window.removeEventListener("scroll", onWindowScroll);
+                stickyTables = undefined;
+                var wrapper = document.querySelector("." + WRAPPER_CLASS);
+                if (wrapper) wrapper.remove();
+                isSticky = false;
+            }
 
-    }
+        // /методы для вызова при показе содержимого
 
-    function enableFiltersForCols(startCol, endCol) {
+        // методы для вызова плагином при редактировании содержимого
 
-    }
+            function colsAllCanFilter(startCell, endCell) {
+                return true;
+            }
 
-    function disableFilterForCol(col) {
+            function columnHasFilter(element) {
+                return true;
+            }
 
-    }
+            function colsHasFilters() {
+                return true;
+            }
 
-    function disableFiltersForCols(startCol, endCol) {
+            function rowCanStick(row) {
+                return rowsAllCanStick(row, row);
+            }
 
-    }
+            function rowsAllCanStick(startRow, endRow) {
+                var table = startRow.closest("table");
+                var colsNum = countTableCols(table);
+                var firstRangeRowColsNum = countRowCols(startRow);
+                if (firstRangeRowColsNum != colsNum) {
+                    //если количества столбцов, вычисленные по первой строке таблицы и по первой
+                    //строке диапазона, не совпадают, значит в первой строке диапазона есть 
+                    //объединённые ячейки из более верхних строк, такие строки закреплять нельзя
+                    return false;
+                }
+                var rows = table.querySelectorAll("tr");
+                var rowsRangeHeight = 0;
+                var process = false;
+                for (var i = 0; i < rows.length; i++) { //TODO: такой цикл выделить в спецфункцию функции
+                    var row = rows[i];
+                    if (row === startRow) process = true;
+                    if (process) rowsRangeHeight++;
+                    if (row === endRow) break;
+                }
+                //вычислено rowsRangeHeight - высота запрошенного диапазона строк
+                var maxRowSpanDepth = 0;
+                var rowSpanDepthAcc;
+                var rangeRowNum = 0;
+                process = false;
+                for (i = 0; i < rows.length; i++) {
+                    row = rows[i];
+                    if (row === startRow) process = true;
+                    if (process) {
+                        rowSpanDepthAcc = 0;
+                        var cells = row.querySelectorAll("th, td");
+                        for (var j = 0; j < cells.length; j++) {
+                            var cell = cells[j];
+                            if (cell.rowSpan > rowSpanDepthAcc) rowSpanDepthAcc = cell.rowSpan;
+                        }
+                        var rowSpanDepth = rowSpanDepthAcc + rangeRowNum; //глубина объединённости ячеек по состоянию на текущую строку
+                        if (rowSpanDepth > maxRowSpanDepth) maxRowSpanDepth = rowSpanDepth;
+                        rangeRowNum++;
+                    }
+                    if (row === endRow) break;
+                }
+                //вычислено maxRowSpanDepth - максимальная глубина объединенности ячеек в диапазоне,
+                //если она превышает высоту диапазона, такие строки закреплять нельзя
+                return maxRowSpanDepth <= rowsRangeHeight;
+            }
 
-    function stickRow(row) {
-        addClass(row, RS_CLASS);
-    }
+            function rowIsSticky(row) {
+                return hasClass(row, RS_CLASS);
+            }
 
-    function stickRows(startRow, endRow) {
-        var table = startRow.closest("table");
-        var rows = table.querySelectorAll("tr");
-        var process = false;
-        for (var i = 0; i < rows.length; i++) {
-            var row = rows[i];
-            if (row === startRow) process = true;
-            if (process) stickRow(row);
-            if (row === endRow) break;
-        }
-    }
+            function rangeHasStickyRows(startRow, endRow) {
+                if (startRow === endRow) {
+                    return rowIsSticky(startRow);
+                }
+                var table = startRow.closest("table");
+                var rows = table.querySelectorAll("tr");
+                var process = false;
+                for (var i = 0; i < rows.length; i++) {
+                    var row = rows[i];
+                    if (row === startRow) process = true;
+                    if (process) {
+                        if (rowIsSticky(row)) return true;
+                    }
+                    if (row === endRow) break;
+                }
+                return false;
+            }
 
-    function unstickRow(row) {
-        removeClass(row, RS_CLASS)
-    }
+            function rangeIsAllSticky(startRow, endRow) {
+                if (startRow === endRow) {
+                    return rowIsSticky(startRow);
+                }
+                var table = startRow.closest("table");
+                var rows = table.querySelectorAll("tr");
+                var process = false;
+                for (var i = 0; i < rows.length; i++) {
+                    var row = rows[i];
+                    if (row === startRow) process = true;
+                    if (process) {
+                        if (!rowIsSticky(row)) return false;
+                    }
+                    if (row === endRow) break;
+                }
+                return true;
+            }
 
-    function unstickRows(startRow, endRow) {
-        var table = startRow.closest("table");
-        var rows = table.querySelectorAll("tr");
-        var process = false;
-        for (var i = 0; i < rows.length; i++) {
-            var row = rows[i];
-            if (row === startRow) process = true;
-            if (process) unstickRow(row);
-            if (row === endRow) break;
-        }
-    }
+            function enableFilterForCol(col) {
+
+            }
+
+            function enableFiltersForCols(startCol, endCol) {
+
+            }
+
+            function disableFilterForCol(col) {
+
+            }
+
+            function disableFiltersForCols(startCol, endCol) {
+
+            }
+
+            function stickRow(row) {
+                addClass(row, RS_CLASS);
+            }
+
+            function stickRows(startRow, endRow) {
+                var table = startRow.closest("table");
+                var rows = table.querySelectorAll("tr");
+                var process = false;
+                for (var i = 0; i < rows.length; i++) {
+                    var row = rows[i];
+                    if (row === startRow) process = true;
+                    if (process) stickRow(row);
+                    if (row === endRow) break;
+                }
+            }
+
+            function unstickRow(row) {
+                removeClass(row, RS_CLASS)
+            }
+
+            function unstickRows(startRow, endRow) {
+                var table = startRow.closest("table");
+                var rows = table.querySelectorAll("tr");
+                var process = false;
+                for (var i = 0; i < rows.length; i++) {
+                    var row = rows[i];
+                    if (row === startRow) process = true;
+                    if (process) unstickRow(row);
+                    if (row === endRow) break;
+                }
+            }
+
+        // методы для вызова плагином при редактировании содержимого
+
+    // /public methods
 
     var requiredStyles = "\
         .table-filter input { \n\
