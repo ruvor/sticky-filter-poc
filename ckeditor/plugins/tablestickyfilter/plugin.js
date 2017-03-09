@@ -19,9 +19,17 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
         function getSelectionEdgeRows() {
             var selection = editor.getSelection();
             var range = selection.getRanges()[0];
+            var startRow = range.startContainer.getAscendant("tr", true);
+            var endRow = range.endContainer.getAscendant("tr", true);
+            var endRowCells = endRow.$.cells;
+            var maxSpan = 1;
+            for (var i = 0; i < endRowCells.length; i++) {
+                var cell = endRowCells[i];
+                if (cell.rowSpan > maxSpan) maxSpan = cell.rowSpan;
+            }
             return {
-                startRow: range.startContainer.getAscendant("tr", true),
-                endRow: range.endContainer.getAscendant("tr", true)
+                startRow: startRow.$,
+                endRow: endRow.$.parentElement.rows[endRow.$.rowIndex + maxSpan - 1]
             };
         }
 
@@ -49,24 +57,24 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
         });
         editor.addCommand( 'stickRow', {
             exec: function( editor ) {
-                StickyFilter.stickRow(getSelectionEdgeRows().startRow.$);
+                StickyFilter.stickRow(getSelectionEdgeRows().startRow);
             }
         });
         editor.addCommand( 'stickRows', {
             exec: function( editor ) {
                 var edgeRows = getSelectionEdgeRows();
-                StickyFilter.stickRows(edgeRows.startRow.$, edgeRows.endRow.$);
+                StickyFilter.stickRows(edgeRows.startRow, edgeRows.endRow);
             }
         });
         editor.addCommand( 'unstickRow', {
             exec: function( editor ) {
-                StickyFilter.unstickRow(getSelectionEdgeRows().startRow.$);
+                StickyFilter.unstickRow(getSelectionEdgeRows().startRow);
             }
         });
         editor.addCommand( 'unstickRows', {
             exec: function( editor ) {
                 var edgeRows = getSelectionEdgeRows();
-                StickyFilter.unstickRows(edgeRows.startRow.$, edgeRows.endRow.$);
+                StickyFilter.unstickRows(edgeRows.startRow, edgeRows.endRow);
             }
         });
         if ( editor.contextMenu ) {
@@ -190,12 +198,12 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
 
                     //активация пунктов меню, относящихся к закреплению
                     var edgeRows = getSelectionEdgeRows(); //начальная и конечная строки диапазона текущего выделения
-                    if (edgeRows.startRow.equals(edgeRows.endRow)) {
+                    if (edgeRows.startRow === edgeRows.endRow) {
                         //выбрана одна строка
                         var row = edgeRows.startRow;
-                        if (StickyFilter.rowCanStick(row.$)) {
+                        if (StickyFilter.rowCanStick(row)) {
                             //и она может закрепляться
-                            if (StickyFilter.rowIsSticky(row.$)) {
+                            if (StickyFilter.rowIsSticky(row)) {
                                 //и она закреплена
                                 tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRow", CKEDITOR.TRISTATE_OFF);
                             }
@@ -206,7 +214,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                         }
                         else {
                             //и она не может закрепляться
-                            if (StickyFilter.rowIsSticky(row.$)) {
+                            if (StickyFilter.rowIsSticky(row)) {
                                 //но она закреплена
                                 tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRow", CKEDITOR.TRISTATE_DISABLED);
                                 //нельзя позволять откреплять её, так как это может разорвать допустимый
@@ -220,10 +228,10 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                     }
                     else {
                         //выбраны несколько строк
-                        if (StickyFilter.rowsAllCanStick(edgeRows.startRow.$, edgeRows.endRow.$)) {
+                        if (StickyFilter.rowsAllCanStick(edgeRows.startRow, edgeRows.endRow)) {
                             //и они могут совместно закрепляться
 
-                            if (StickyFilter.rangeIsAllSticky(edgeRows.startRow.$, edgeRows.endRow.$)) {
+                            if (StickyFilter.rangeIsAllSticky(edgeRows.startRow, edgeRows.endRow)) {
                                 //и они все закреплённые
                                 tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRows", CKEDITOR.TRISTATE_OFF);
                             }
@@ -232,7 +240,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                                 tabletoolsMenuInjector.injectTablerowSubmenuItem("stickRows", CKEDITOR.TRISTATE_OFF);
                             } //один вариант показа пунктов меню
 
-                            /*if (StickyFilter.rangeHasStickyRows(edgeRows.startRow.$, edgeRows.endRow.$)) {
+                            /*if (StickyFilter.rangeHasStickyRows(edgeRows.startRow, edgeRows.endRow)) {
                                 //и среди них есть закреплённые
                                 tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRows", CKEDITOR.TRISTATE_OFF);
                             }
@@ -243,7 +251,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                         }
                         else {
                             //и они не могут совместно закрепляться
-                            if (StickyFilter.rangeHasStickyRows(edgeRows.startRow.$, edgeRows.endRow.$)) {
+                            if (StickyFilter.rangeHasStickyRows(edgeRows.startRow, edgeRows.endRow)) {
                                 //но среди них есть закреплённые
                                 tabletoolsMenuInjector.injectTablerowSubmenuItem("unstickRows", CKEDITOR.TRISTATE_DISABLED);
                                 //нельзя позволять откреплять их, так как это может разорвать допустимый
