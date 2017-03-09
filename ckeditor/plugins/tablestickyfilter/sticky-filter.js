@@ -11,7 +11,7 @@ window.StickyFilter = (function () {
     var RS_CLASS = "row-sticky"; //CSS-класс, назначаемый закреплённым строкам
     var WRAPPER_CLASS = "sticky-wrapper";
 
-    var stickyTables;
+    var stickyTablesCache;
     var isFiltering = false;
     var isSticky = false;
 
@@ -115,8 +115,8 @@ window.StickyFilter = (function () {
         }
 
         function onWindowScroll(e) {
-            for (var i = 0; i < stickyTables.length; i++) {
-                var table = stickyTables[i];
+            for (var i = 0; i < stickyTablesCache.length; i++) {
+                var table = stickyTablesCache[i];
                 var tableRect = table.getBoundingClientRect();
                 var peer = table.peer;
                 if (tableRect.top > 0 || tableRect.bottom <= 0) {
@@ -279,12 +279,11 @@ window.StickyFilter = (function () {
                     wrapper = document.createElement("div");
                     wrapper.className = WRAPPER_CLASS;
                     document.body.appendChild(wrapper);
-                    stickyTables = [];
+                    stickyTablesCache = [];
                 }*/ //из-за проверки isSticky теперь можно проще
                 var wrapper = document.createElement("div");
                 wrapper.className = WRAPPER_CLASS;
-                document.body.appendChild(wrapper);
-                stickyTables = [];
+                stickyTablesCache = [];
                 var allTables = document.querySelectorAll("table");
                 for (var i = 0; i < allTables.length; i++) {
                     var table = allTables[i];
@@ -302,24 +301,24 @@ window.StickyFilter = (function () {
                         peerRowsToDelete[j].remove();
                     }
                     addClass(table, TS_CLASS);
-                    stickyTables.push(table);
+                    stickyTablesCache.push(table);
                 }
                 window.addEventListener("scroll", onWindowScroll);
                 wrapper.addEventListener("input", onStickyTableFilterInput);
+                document.body.appendChild(wrapper);
                 isSticky = true;
             }
 
             function disableTableSticking() {
                 if (!isSticky) return;
+                window.removeEventListener("scroll", onWindowScroll);
+                stickyTablesCache = undefined;
                 var stickyTables = document.querySelectorAll("table." + TS_CLASS);
                 for (var i = 0; i < stickyTables.length; i++) {
                     var table = stickyTables[i];
                     removeClass(table, TS_CLASS);
                 }
-                window.removeEventListener("scroll", onWindowScroll);
-                stickyTables = undefined;
-                var wrapper = document.querySelector("." + WRAPPER_CLASS);
-                if (wrapper) wrapper.remove();
+                document.querySelector("." + WRAPPER_CLASS).remove();
                 isSticky = false;
             }
 
