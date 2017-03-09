@@ -310,6 +310,10 @@ window.StickyFilter = (function () {
         return true;
     }
 
+    function rowCanStick(row) {
+        return rowsAllCanStick(row, row);
+    }
+
     function rowsAllCanStick(startRow, endRow) {
         var table = startRow.closest("table");
         var colsNum = countTableCols(table);
@@ -457,6 +461,7 @@ window.StickyFilter = (function () {
     StickyFilter.colsAllCanFilter = colsAllCanFilter;
     StickyFilter.columnHasFilter = columnHasFilter;
     StickyFilter.colsHasFilters = colsHasFilters;
+    StickyFilter.rowCanStick = rowCanStick;
     StickyFilter.rowsAllCanStick = rowsAllCanStick;
     StickyFilter.rowIsSticky = rowIsSticky;
     StickyFilter.rangeHasStickyRows = rangeHasStickyRows;
