@@ -492,7 +492,6 @@ window.StickyFilter = (function () {
 
             function colsHasFilters(startCell, endCell) {
                 //внимание: вызывать только после вызова colCanFilter или colsAllCanFilter
-                var filterRow = startCell.parentElement;
                 return applyForCellsInCols(startCell, endCell, function (cell) {
                     return colHasFilter(cell);
                 });
