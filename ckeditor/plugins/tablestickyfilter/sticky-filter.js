@@ -17,30 +17,40 @@ window.StickyFilter = (function () {
     var isFiltering = false;
     var isSticky = false;
 
-    //TODO: убрать из прототипов, чтобы не засорять их
-    //несколько полифиллов
-        if (!Element.prototype.matches) {
-            Element.prototype.matches = Element.prototype.matchesSelector ||
+    //несколько псевдополифиллов
+
+        var nativeMatchesFunc = Element.prototype.matches ||
+            Element.prototype.matchesSelector ||
             Element.prototype.webkitMatchesSelector ||
             Element.prototype.mozMatchesSelector ||
             Element.prototype.msMatchesSelector;
+        function elementMatches(element, selector) {
+            return nativeMatchesFunc.call(element, selector);
         }
-        if (!Element.prototype.closest) {
-            Element.prototype.closest = function(css) {
-            var node = this;
-            while (node) {
-                if (node.matches(css)) return node;
-                else node = node.parentElement;
+
+        function closestAncestor(element, selector) {
+            if (Element.prototype.closest) {
+                return element.closest(selector);
             }
-            return null;
-            };
-        }
-        if (!Element.prototype.remove) {
-            Element.prototype.remove = function() {
-                this.parentElement.removeChild(this);
+            else {
+                while (element) {
+                    if (elementMatches(element, css)) return element;
+                    else element = element.parentElement;
+                }
+                return null;
             }
         }
-    // /несколько полифиллов
+
+        function removeElement(element) {
+            if (Element.prototype.remove) {
+                element.remove();
+            }
+            else {
+                element.parentElement.removeChild(element);
+            }
+        }
+
+    // /несколько псевдополифиллов
 
     // private methods
 
@@ -49,11 +59,11 @@ window.StickyFilter = (function () {
             if (peerInput) {
                 peerInput.value = e.target.value;
             }
-            filterTable(e.target.closest("table"));
+            filterTable(closestAncestor(e.target, "table"));
         }
 
         function onStickyTableFilterInput(e) {
-            if (!e.target.matches("." + CF_CLASS + " input[type=text]")) return;
+            if (!elementMatches(e.target, "." + CF_CLASS + " input[type=text]")) return;
             var peerInput = findPeerInput(e.target);
             peerInput.value = e.target.value;
             var event = document.createEvent("Event");
@@ -63,7 +73,7 @@ window.StickyFilter = (function () {
 
         function findPeerInput(origInput) {
             var num;
-            var origTable = origInput.closest("table");
+            var origTable = closestAncestor(origInput, "table");
             var peerTable = origTable.peer;
             if (!peerTable) return null;
             var inputs = origTable.querySelectorAll("." + CF_CLASS + " input[type=text]");
@@ -170,7 +180,7 @@ window.StickyFilter = (function () {
                 cellWidths[j] = cell.offsetWidth;
             }
             var colgroup = table.querySelector("colgroup");
-            if (colgroup) colgroup.remove();
+            if (colgroup) removeElement(colgroup);
             colgroup = document.createElement("colgroup");
             for (j = 0; j < firstRowCells.length; j++) {
                 cell = firstRowCells[j];
@@ -379,7 +389,7 @@ window.StickyFilter = (function () {
                     removeClass(filterRow, RF_CLASS);
                     var filterCells = filterRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
                     for (var j = 0; j < filterCells.length; j++) {
-                        filterCells[j].querySelector("input[type=text]").remove();
+                        removeElement(filterCells[j].querySelector("input[type=text]"));
                     }
                     unfilterTable(table);
                     removeClass(table, TF_CLASS);
@@ -410,7 +420,7 @@ window.StickyFilter = (function () {
                     peer.peer = table;
                     var peerRowsToDelete = peer.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
                     for (var j = 0; j < peerRowsToDelete.length; j++) {
-                        peerRowsToDelete[j].remove();
+                        removeElement(peerRowsToDelete[j]);
                     }
                     stickyTablesCache.push(table);
                 }
@@ -423,7 +433,7 @@ window.StickyFilter = (function () {
             function disableTableSticking() {
                 if (!isSticky) return;
                 window.removeEventListener("scroll", onWindowScroll);
-                document.querySelector("." + WRAPPER_CLASS).remove();
+                removeElement(document.querySelector("." + WRAPPER_CLASS));
                 stickyTablesCache = undefined;
                 var stickyTables = document.querySelectorAll("table." + TS_CLASS);
                 for (var i = 0; i < stickyTables.length; i++) {
@@ -462,7 +472,7 @@ window.StickyFilter = (function () {
                 //однако при выяснении возможности включения фильтров можно применять и при наличии
                 //вертикально объединённых ячеек, поскольку последующие проверки нивелируют
                 //возможные некорректности
-                var table = row.closest("table");
+                var table = closestAncestor(row, "table");
                 calcColIndexes(table, [originalCell]);
                 var counterpart = getCellByColIndex(row, originalCell.colIndex);
                 if (!counterpart){
@@ -481,7 +491,7 @@ window.StickyFilter = (function () {
             function colsAllCanFilter(filterRow, startCell, endCell) {
                 //столбцы разрешено фильтровать, если разрешена фильтрация таблицы по признаку
                 //исключительно горизонтальных объединений в незакреплённых строках
-                var table = filterRow.closest("table");
+                var table = closestAncestor(filterRow, "table");
                 if (!tableCanFilter(table)) return false;
                 //и если все ячейки незакреплённых строк и строки фильтра (которая может быть закреплена),
                 //входящие в объединения, не относятся к проверяемым столбцам
@@ -534,7 +544,7 @@ window.StickyFilter = (function () {
             }
 
             function rowsAllCanStick(startRow, endRow) {
-                var table = startRow.closest("table");
+                var table = closestAncestor(startRow, "table");
                 var colsNum = countTableCols(table);
                 var firstRangeRowColsNum = countRowCols(startRow);
                 if (firstRangeRowColsNum != colsNum) {
