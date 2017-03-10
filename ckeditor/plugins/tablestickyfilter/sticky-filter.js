@@ -315,12 +315,23 @@ window.StickyFilter = (function () {
             if (!startCell.hasOwnProperty("colIndex")) errorCellName = "startCell";
             if (!endCell.hasOwnProperty("colIndex")) errorCellName = "endCell";
             if (errorCellName) {
-                throw new Error("Parameter '" + errorCellName + "' references a cell without 'colIndex' property. Consider calling 'colCanFilter', 'colsAllCanFilter' or 'calcColIndexes' for it first. ")
+                throw new Error("Parameter '" + errorCellName + "' references a cell without 'colIndex' property. Consider calling 'colCanFilter', 'colsAllCanFilter' or 'calcColIndexes' for it first.")
             }
+            if (typeof(action) != "function") return false;
             var row = startCell.parentElement;
             for (var i = startCell.colIndex; i <= endCell.colIndex; i++) {
                 var cell = getCellByColIndex(row, i);
                 if (action(cell) === false) return false;
+            }
+            return true;
+        }
+
+        function applyForRows(startRow, endRow, action) {
+            if (typeof(action) != "function") return false;
+            var rows = startRow.parentElement.rows;
+            for (var i = startRow.rowIndex; i <= endRow.rowIndex; i++) {
+                var row = rows[i];
+                if (action(row) === false) return false;
             }
             return true;
         }
@@ -532,36 +543,21 @@ window.StickyFilter = (function () {
                     //объединённые ячейки из более верхних строк, такие строки закреплять нельзя
                     return false;
                 }
-                var rows = table.rows;
-                var rowsRangeHeight = 0;
-                var process = false;
-                for (var i = 0; i < rows.length; i++) { //TODO: такой цикл выделить в спецфункцию функции
-                    var row = rows[i];
-                    if (row === startRow) process = true;
-                    if (process) rowsRangeHeight++;
-                    if (row === endRow) break;
-                }
-                //вычислено rowsRangeHeight - высота запрошенного диапазона строк
+                var rowsRangeHeight = endRow.rowIndex - startRow.rowIndex + 1; //высота запрошенного диапазона строк
                 var maxRowSpanDepth = 0;
                 var rowSpanDepthAcc;
                 var rangeRowNum = 0;
-                process = false;
-                for (i = 0; i < rows.length; i++) {
-                    row = rows[i];
-                    if (row === startRow) process = true;
-                    if (process) {
-                        rowSpanDepthAcc = 0;
-                        var cells = row.cells;
-                        for (var j = 0; j < cells.length; j++) {
-                            var cell = cells[j];
-                            if (cell.rowSpan > rowSpanDepthAcc) rowSpanDepthAcc = cell.rowSpan;
-                        }
-                        var rowSpanDepth = rowSpanDepthAcc + rangeRowNum; //глубина объединённости ячеек по состоянию на текущую строку
-                        if (rowSpanDepth > maxRowSpanDepth) maxRowSpanDepth = rowSpanDepth;
-                        rangeRowNum++;
+                applyForRows(startRow, endRow, function (row) {
+                    rowSpanDepthAcc = 0;
+                    var cells = row.cells;
+                    for (var i = 0; i < cells.length; i++) {
+                        var cell = cells[i];
+                        if (cell.rowSpan > rowSpanDepthAcc) rowSpanDepthAcc = cell.rowSpan;
                     }
-                    if (row === endRow) break;
-                }
+                    var rowSpanDepth = rowSpanDepthAcc + rangeRowNum; //глубина объединённости ячеек по состоянию на текущую строку
+                    if (rowSpanDepth > maxRowSpanDepth) maxRowSpanDepth = rowSpanDepth;
+                    rangeRowNum++;
+                });
                 //вычислено maxRowSpanDepth - максимальная глубина объединенности ячеек в диапазоне,
                 //если она превышает высоту диапазона, такие строки закреплять нельзя
                 return maxRowSpanDepth <= rowsRangeHeight;
@@ -575,36 +571,18 @@ window.StickyFilter = (function () {
                 if (startRow === endRow) {
                     return rowIsSticky(startRow);
                 }
-                var table = startRow.closest("table");
-                var rows = table.rows;
-                var process = false;
-                for (var i = 0; i < rows.length; i++) {
-                    var row = rows[i];
-                    if (row === startRow) process = true;
-                    if (process) {
-                        if (rowIsSticky(row)) return true;
-                    }
-                    if (row === endRow) break;
-                }
-                return false;
+                return !applyForRows(startRow, endRow, function (row) {
+                    return !rowIsSticky(row);
+                });
             }
 
             function rangeIsAllSticky(startRow, endRow) {
                 if (startRow === endRow) {
                     return rowIsSticky(startRow);
                 }
-                var table = startRow.closest("table");
-                var rows = table.rows;
-                var process = false;
-                for (var i = 0; i < rows.length; i++) {
-                    var row = rows[i];
-                    if (row === startRow) process = true;
-                    if (process) {
-                        if (!rowIsSticky(row)) return false;
-                    }
-                    if (row === endRow) break;
-                }
-                return true;
+                return applyForRows(startRow, endRow, function (row) {
+                    return rowIsSticky(row);
+                });
             }
 
             function stickRow(row) {
@@ -612,15 +590,9 @@ window.StickyFilter = (function () {
             }
 
             function stickRows(startRow, endRow) {
-                var table = startRow.closest("table");
-                var rows = table.rows;
-                var process = false;
-                for (var i = 0; i < rows.length; i++) {
-                    var row = rows[i];
-                    if (row === startRow) process = true;
-                    if (process) stickRow(row);
-                    if (row === endRow) break;
-                }
+                applyForRows(startRow, endRow, function (row) {
+                    stickRow(row);
+                });
             }
 
             function unstickRow(row) {
@@ -628,15 +600,9 @@ window.StickyFilter = (function () {
             }
 
             function unstickRows(startRow, endRow) {
-                var table = startRow.closest("table");
-                var rows = table.rows;
-                var process = false;
-                for (var i = 0; i < rows.length; i++) {
-                    var row = rows[i];
-                    if (row === startRow) process = true;
-                    if (process) unstickRow(row);
-                    if (row === endRow) break;
-                }
+                applyForRows(startRow, endRow, function (row) {
+                    unstickRow(row);
+                });
             }
 
         // методы для вызова плагином при редактировании содержимого
