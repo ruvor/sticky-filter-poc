@@ -3,13 +3,15 @@
 if (window.StickyFilter === undefined) {
 
 window.StickyFilter = (function () {
-    var TP_CLASS = "table-prcnt"; //CSS-класс, назначаемый "процентизованным" таблицам
-    var TF_CLASS = "table-filter"; //CSS-класс, назначаемый таблицам с фильтром
-    var RF_CLASS = "row-filter"; //CSS-класс, назначаемый строкам с фильтром
-    var CF_CLASS = "column-filter"; //CSS-класс ячеек, используемый как признак необходимости фильтрации по столбцам, содержащим эти ячейки
-    var TS_CLASS = "table-sticky"; //CSS-класс, назначаемый таблицам с закреплёнными строками
-    var RS_CLASS = "row-sticky"; //CSS-класс, назначаемый закреплённым строкам
-    var WRAPPER_CLASS = "sticky-wrapper";
+    // const
+        var TP_CLASS = "table-prcnt"; //CSS-класс, назначаемый "процентизованным" таблицам
+        var TF_CLASS = "table-filter"; //CSS-класс, назначаемый таблицам с фильтром при включении фильтрования
+        var RF_CLASS = "row-filter"; //CSS-класс, назначаемый строкам с фильтром при включении фильтрования
+        var CF_CLASS = "column-filter"; //CSS-класс ячеек, используемый как признак возможности фильтрации по столбцам, содержащим эти ячейки
+        var TS_CLASS = "table-sticky"; //CSS-класс, назначаемый таблицам с закреплёнными строками при включении закрепления
+        var RS_CLASS = "row-sticky"; //CSS-класс строк, используемый как признак их закрепляемости
+        var WRAPPER_CLASS = "sticky-wrapper"; //CSS-класс обёртки закреплённых таблиц
+    // /const
 
     var stickyTablesCache;
     var isFiltering = false;
