@@ -254,11 +254,10 @@ window.StickyFilter = (function () {
                 var allTables = document.querySelectorAll("table");
                 for (var i = 0; i < allTables.length; i++) {
                     var table = allTables[i];
-                    var firstFilteringCell = table.querySelector("th." + CF_CLASS + ", td." + CF_CLASS);
-                    //предполагается, что такие ячейки будут в одной строке таблицы
-                    if (!firstFilteringCell) continue; //если в таблице нет фильтровальных ячеек
+                    var filteringRow = getFilterRow(table)
+                    //предполагается, что фильтровальные ячейки будут в одной строке таблицы
+                    if (!filteringRow) continue; //если в таблице нет фильтровальных ячеек
                     percentizeTable(table);
-                    var filteringRow = firstFilteringCell.closest("tr");
                     var filteringCells = filteringRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
                     for (var j = 0; j < filteringCells.length; j++) {
                         cell = filteringCells[j];
@@ -355,6 +354,13 @@ window.StickyFilter = (function () {
                     }
                 }
                 return true;
+            }
+
+            function getFilterRow(table) {
+                //возвращает строку, содержащую первую ячейку с классом CF_CLASS или null
+                var firstFilteringCell = table.querySelector("th." + CF_CLASS + ", td." + CF_CLASS);
+                if (firstFilteringCell) return firstFilteringCell.parentElement;
+                return null;
             }
 
             function colCanFilter(cell) {
@@ -536,6 +542,7 @@ window.StickyFilter = (function () {
             return isSticky;
         },
 
+        getFilterRow: getFilterRow,
         colCanFilter: colCanFilter,
         colsAllCanFilter: colsAllCanFilter,
         colHasFilter: colHasFilter,
