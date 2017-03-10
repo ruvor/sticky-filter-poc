@@ -441,7 +441,7 @@ window.StickyFilter = (function () {
             }
 
             function getFilterRow(table) {
-                //возвращает строку, содержащую первую ячейку с классом CF_CLASS или null
+                //возвращает строку, содержащую первую ячейку с классом CF_CLASS, или null
                 var firstFilteringCell = table.querySelector("th." + CF_CLASS + ", td." + CF_CLASS);
                 if (firstFilteringCell) return firstFilteringCell.parentElement;
                 return null;
