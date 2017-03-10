@@ -303,12 +303,14 @@ window.StickyFilter = (function () {
             var currentColIndex = 0;
             for (var i = 0; i < row.cells.length; i++) {
                 var cell = row.cells[i];
-                if (i == colIndex) return cell;
+                if (currentColIndex == colIndex) return cell;
                 currentColIndex += cell.colSpan;
             }
         }
 
         function applyForCellsInCols(startCell, endCell, action) {
+            //корректно работает для строк, не содержащих вертикально объединённых ячеек
+            //из-за использования getCellByColIndex
             var errorCellName;
             if (!startCell.hasOwnProperty("colIndex")) errorCellName = "startCell";
             if (!endCell.hasOwnProperty("colIndex")) errorCellName = "endCell";
@@ -430,7 +432,7 @@ window.StickyFilter = (function () {
                 for (var i = 0; i < nonStickyRows.length; i++) {
                     var cells = nonStickyRows[i].cells;
                     for (var j = 0; j < cells.length; j++) {
-                        if (cells[j].rowspan > 1) return false;
+                        if (cells[j].rowSpan > 1) return false;
                     }
                 }
                 return true;
@@ -445,12 +447,19 @@ window.StickyFilter = (function () {
 
             function findCounterpart(row, originalCell) {
                 //корректно работает для строк, не содержащих вертикально объединённых ячеек,
-                //а так как используется при выяснении возможности включения фильтров, при наличии
-                //вертикально объединённыз ячеек последующие проверки нивелируют возможные
-                //некорректности
+                //однако при выяснении возможности включения фильтров можно применять и при наличии
+                //вертикально объединённых ячеек, поскольку последующие проверки нивелируют
+                //возможные некорректности
                 var table = row.closest("table");
                 calcColIndexes(table, [originalCell]);
-                return getCellByColIndex(row, originalCell.colIndex);
+                var counterpart = getCellByColIndex(row, originalCell.colIndex);
+                if (!counterpart){
+                    //такая ситуация возможна как раз при наличии вертикально объединённых ячеек,
+                    //и чтобы дальнейший код выяснении возможности включения фильтров не ломался,
+                    //следует передать на выход хоть что-то
+                    counterpart = row.cells[row.cells.length - 1];
+                }
+                return counterpart;
             }
 
             function colCanFilter(row, cell) {
