@@ -1,4 +1,5 @@
 //TODO: добавить JSDocов
+//TODO: добавить метод sanitizeTable и звать его после меняния закрпеления и через ACF
 CKEDITOR.plugins.add( 'tablestickyfilter', {
     requires: 'tabletools,dialog,contextmenu',
     init: function( editor ) {
