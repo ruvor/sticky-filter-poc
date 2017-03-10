@@ -95,7 +95,6 @@ window.StickyFilter = (function () {
             for (var j = 0; j < rows.length; j++) {
                 var row = rows[j];
                 var hideRow = false;
-                var cols = row.querySelectorAll("th, td");
                 for (var filterColIndex in filterValues) {
                     if (getCellByColIndex(row, filterColIndex).textContent.toLowerCase().indexOf(filterValues[filterColIndex]) < 0) {
                         hideRow = true;
@@ -130,7 +129,7 @@ window.StickyFilter = (function () {
                 peer.style.width = table.offsetWidth + "px";
                 peer.style.visibility = "hidden";
                 peer.style.display = "table";
-                var peerRows = peer.querySelectorAll("tr");
+                var peerRows = peer.rows;
                 var peerRosHeights = [];
                 for (var j = 0; j < peerRows.length; j++) {
                     peerRows[j].style.display = "table-row";
@@ -161,7 +160,7 @@ window.StickyFilter = (function () {
 
         function percentizeTable(table) {
             if (hasClass(table, TP_CLASS)) return;
-            var firstRow = table.querySelector("tr");
+            var firstRow = table.rows[0];
             var rowWidth = firstRow.offsetWidth;
             var firstRowCells = firstRow.children;
             var cellWidths = [];
@@ -185,7 +184,7 @@ window.StickyFilter = (function () {
         }
 
         function countRowCols(row) {
-            var cells = row.querySelectorAll("th, td");
+            var cells = row.cells;
             var colsNum = 0;
             for (var i = 0; i < cells.length; i++) {
                 colsNum += cells[i].colSpan;
@@ -194,7 +193,7 @@ window.StickyFilter = (function () {
         }
 
         function countTableCols(table) {
-            return countRowCols(table.querySelector("tr"));
+            return countRowCols(table.rows[0]);
         }
 
         function hasClass(element, cssClass) {
@@ -365,7 +364,7 @@ window.StickyFilter = (function () {
                 var filteredTables = document.querySelectorAll("table." + TF_CLASS);
                 for (var i = 0; i < filteredTables.length; i++) {
                     var table = filteredTables[i];
-                    var filterRow = table.querySelector("." + RF_CLASS);
+                    var filterRow = table.querySelector("tr." + RF_CLASS);
                     removeClass(filterRow, RF_CLASS);
                     var filterCells = filterRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
                     for (var j = 0; j < filterCells.length; j++) {
@@ -533,7 +532,7 @@ window.StickyFilter = (function () {
                     //объединённые ячейки из более верхних строк, такие строки закреплять нельзя
                     return false;
                 }
-                var rows = table.querySelectorAll("tr");
+                var rows = table.rows;
                 var rowsRangeHeight = 0;
                 var process = false;
                 for (var i = 0; i < rows.length; i++) { //TODO: такой цикл выделить в спецфункцию функции
@@ -552,7 +551,7 @@ window.StickyFilter = (function () {
                     if (row === startRow) process = true;
                     if (process) {
                         rowSpanDepthAcc = 0;
-                        var cells = row.querySelectorAll("th, td");
+                        var cells = row.cells;
                         for (var j = 0; j < cells.length; j++) {
                             var cell = cells[j];
                             if (cell.rowSpan > rowSpanDepthAcc) rowSpanDepthAcc = cell.rowSpan;
@@ -577,7 +576,7 @@ window.StickyFilter = (function () {
                     return rowIsSticky(startRow);
                 }
                 var table = startRow.closest("table");
-                var rows = table.querySelectorAll("tr");
+                var rows = table.rows;
                 var process = false;
                 for (var i = 0; i < rows.length; i++) {
                     var row = rows[i];
@@ -595,7 +594,7 @@ window.StickyFilter = (function () {
                     return rowIsSticky(startRow);
                 }
                 var table = startRow.closest("table");
-                var rows = table.querySelectorAll("tr");
+                var rows = table.rows;
                 var process = false;
                 for (var i = 0; i < rows.length; i++) {
                     var row = rows[i];
@@ -614,7 +613,7 @@ window.StickyFilter = (function () {
 
             function stickRows(startRow, endRow) {
                 var table = startRow.closest("table");
-                var rows = table.querySelectorAll("tr");
+                var rows = table.rows;
                 var process = false;
                 for (var i = 0; i < rows.length; i++) {
                     var row = rows[i];
@@ -630,7 +629,7 @@ window.StickyFilter = (function () {
 
             function unstickRows(startRow, endRow) {
                 var table = startRow.closest("table");
-                var rows = table.querySelectorAll("tr");
+                var rows = table.rows;
                 var process = false;
                 for (var i = 0; i < rows.length; i++) {
                     var row = rows[i];
