@@ -78,15 +78,16 @@ window.StickyFilter = (function () {
         }
 
         function filterTable(table) {
-            var filterRow = table.querySelector("tr." + RF_CLASS);
+            var filteringRow = table.querySelector("tr." + RF_CLASS);
             var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
-            if (!filterRow || rows.length == 0) return;
+            if (!filteringRow || rows.length == 0) return;
             var filterValues = {};
-            var filterCells = filterRow.querySelectorAll("th, td");
-            for (var i = 0; i < filterCells.length; i++) {
-                var filterInput = filterCells[i].querySelector("." + CF_CLASS + " input[type=text]");
+            var filteringCells = filteringRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
+            for (var i = 0; i < filteringCells.length; i++) {
+                var filteringCell = filteringCells[i];
+                var filterInput = filteringCell.querySelector("input[type=text]");
                 if (filterInput && filterInput.value) {
-                    filterValues[i] = filterInput.value.toLowerCase();
+                    filterValues[filteringCell.colIndex] = filterInput.value.toLowerCase();
                 }
             }
             var rowsToHide = [];
@@ -96,7 +97,7 @@ window.StickyFilter = (function () {
                 var hideRow = false;
                 var cols = row.querySelectorAll("th, td");
                 for (var filteringColIndex in filterValues) {
-                    if (cols[filteringColIndex].textContent.toLowerCase().indexOf(filterValues[filteringColIndex]) < 0) {
+                    if (getCellByColIndex(row, filteringColIndex).textContent.toLowerCase().indexOf(filterValues[filteringColIndex]) < 0) {
                         hideRow = true;
                         break;
                     }
@@ -341,6 +342,7 @@ window.StickyFilter = (function () {
                     if (!filteringRow) continue; //если в таблице нет фильтровальных ячеек
                     percentizeTable(table);
                     var filteringCells = filteringRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
+                    calcColIndexes(table, filteringCells);
                     for (var j = 0; j < filteringCells.length; j++) {
                         cell = filteringCells[j];
                         var filterInput = document.createElement("input");
