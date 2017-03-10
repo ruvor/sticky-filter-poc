@@ -39,14 +39,14 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
             var startRow = range.startContainer.getAscendant("tr", true);
             var endRow = range.endContainer.getAscendant("tr", true);
             var endRowCells = endRow.$.cells;
-            var maxSpan = 1;
+            var maxRowSpan = 1;
             for (var i = 0; i < endRowCells.length; i++) {
                 var cell = endRowCells[i];
-                if (cell.rowSpan > maxSpan) maxSpan = cell.rowSpan;
+                if (cell.rowSpan > maxRowSpan) maxRowSpan = cell.rowSpan;
             }
             return {
                 startRow: startRow.$,
-                endRow: endRow.$.parentElement.rows[endRow.$.rowIndex + maxSpan - 1]
+                endRow: endRow.$.parentElement.rows[endRow.$.rowIndex + maxRowSpan - 1]
             };
         }
 
