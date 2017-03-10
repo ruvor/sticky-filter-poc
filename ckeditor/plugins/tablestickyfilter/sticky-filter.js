@@ -254,11 +254,11 @@ window.StickyFilter = (function () {
                 var allTables = document.querySelectorAll("table");
                 for (var i = 0; i < allTables.length; i++) {
                     var table = allTables[i];
-                    var allFilteringCells = table.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
+                    var firstFilteringCell = table.querySelector("th." + CF_CLASS + ", td." + CF_CLASS);
                     //предполагается, что такие ячейки будут в одной строке таблицы
-                    if (allFilteringCells.length == 0) continue; //если в таблице нет фильтровальных ячеек
+                    if (!firstFilteringCell) continue; //если в таблице нет фильтровальных ячеек
                     percentizeTable(table);
-                    var filteringRow = allFilteringCells[0].closest("tr");
+                    var filteringRow = firstFilteringCell.closest("tr");
                     var filteringCells = filteringRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
                     for (var j = 0; j < filteringCells.length; j++) {
                         cell = filteringCells[j];
