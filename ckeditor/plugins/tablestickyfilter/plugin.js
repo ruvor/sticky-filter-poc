@@ -8,10 +8,11 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
         document.querySelector("head").insertAdjacentElement("beforeEnd", scriptElement);
 
         function getSelectionEdgeCells() {
-            //рассматриваются выделенные ячейки только одной строки, начиная со строки ячейки
-            //начала выбранного диапазона, потому что весьма сомнительно, что кому-то понадобится
+            //рассматриваются выделенные ячейки только одной строки, строки ячейки начала
+            //выбранного диапазона, потому что весьма сомнительно, что кому-то понадобится
             //включать фильтры для столбцов ячеек, выделенных в нескольких строках, а код при
-            //таком предположении значительно упрощается
+            //таком предположении значительно упрощается, кроме того, сам фильтр по условиям
+            //задачи располагается на одной строке
             var selection = editor.getSelection();
             var range = selection.getRanges()[0];
             var startCell = range.startContainer.getAscendant({ th: 1, td: 1 }, true);
@@ -22,14 +23,22 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 //выбраны несколько строк, такая ситуация считается равнозначной выбору одной ячейки
                 endCell = startCell;
             }
-            var filterRow = StickyFilter.getFilterRow();
-            if (!filterRow) filterRow = startCellRow;
-            //определить номера столбцов как-то, найти по этим номерам ячейки строки filterRow, соответствующие
-            //запрошенным ячейкам
+            var startCellNode = startCell.$, endCellNode = endCell.$;
+            var table = startCellRow.getAscendant({ table: 1 }, true);
+            var filterRow = StickyFilter.getFilterRow(table.$);
+            if (!filterRow) {
+                //в таблице ещё нет фильтровальных ячеек
+                filterRow = startCellRow.$;
+            }
+            else if (filterRow !== startCellRow.$) {
+                //в таблице уже есть фильтровальные ячейки, и они располагаются не на текущей строке
+                startCellNode = StickyFilter.findCounterpart(filterRow, startCell.$);
+                endCellNode = StickyFilter.findCounterpart(filterRow, endCell.$);
+            }
             return {
                 filterRow: filterRow,
-                startCell: startCell.$,
-                endCell: endCell.$
+                startCell: startCellNode,
+                endCell: endCellNode
             };
         }
 
@@ -53,7 +62,8 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
         // команды
             editor.addCommand( 'enableFilter', {
                 exec: function( editor ) {
-                    StickyFilter.enableFilterForCol(getSelectionEdgeCells().startCell);
+                    var edgeCells = getSelectionEdgeCells();
+                    StickyFilter.enableFilterForCol(edgeCells.startCell);
                 }
             });
             editor.addCommand( 'enableFilters', {
@@ -64,7 +74,8 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
             });
             editor.addCommand( 'disableFilter', {
                 exec: function( editor ) {
-                    StickyFilter.disableFilterForCol(getSelectionEdgeCells().startCell);
+                    var edgeCells = getSelectionEdgeCells();
+                    StickyFilter.disableFilterForCol(edgeCells.startCell);
                 }
             });
             editor.addCommand( 'disableFilters', {
@@ -193,9 +204,9 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 if (edgeCells.startCell === edgeCells.endCell) {
                     //выбран один столбец
                     var cell = edgeCells.startCell;
-                    if (StickyFilter.colCanFilter(cell)) {
+                    if (StickyFilter.colCanFilter(edgeCells.filterRow, cell)) {
                         //и он может фильтроваться
-                        if (StickyFilter.colHasFilter(edgeCells.startCell)) {
+                        if (StickyFilter.colHasFilter(cell)) {
                             //и он уже фильтруется
                             tabletoolsMenuInjector.injectTablecolumnSubmenuItem("disableFilter", CKEDITOR.TRISTATE_OFF);
                         }
@@ -206,7 +217,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                     }
                     else {
                         //и он не может фильтроваться
-                        if (StickyFilter.colHasFilter(edgeCells.startCell)) {
+                        if (StickyFilter.colHasFilter(cell)) {
                             //но он фильтруется (возможно, после включения фильтра менялись объединения ячеек)
                             tabletoolsMenuInjector.injectTablecolumnSubmenuItem("disableFilter", CKEDITOR.TRISTATE_OFF);
                         }
@@ -218,7 +229,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 }
                 else {
                     //выбраны несколько столбцов
-                    if (StickyFilter.colsAllCanFilter(edgeCells.startCell, edgeCells.endCell)) {
+                    if (StickyFilter.colsAllCanFilter(edgeCells.filterRow, edgeCells.startCell, edgeCells.endCell)) {
                         //и они все могут фильтроваться
                         if (StickyFilter.colsHasFilters(edgeCells.startCell, edgeCells.endCell)) {
                             //и среди них есть уже фильтрующиеся

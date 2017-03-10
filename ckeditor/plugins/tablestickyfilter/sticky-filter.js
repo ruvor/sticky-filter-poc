@@ -243,6 +243,86 @@ window.StickyFilter = (function () {
             document.querySelector("head").insertAdjacentElement("beforeEnd", styleElement);
         }
 
+        function calcColIndexes(table, filterCells) {
+            //переданным ячейкам добавляется свойство colIndex, отражающее индексы их столбцов
+            var tableClone = table.cloneNode(true);
+            var filterCellClones = [];
+            for (var i = 0; i < filterCells.length; i++) {
+                var filterCell = filterCells[i];
+                filterCellClones.push(tableClone.rows[filterCell.parentElement.rowIndex].cells[filterCell.cellIndex]);
+            }
+            var rows = tableClone.rows;
+            for (var j = 0; j < rows.length; j++) {
+                var row = tableClone.rows[j];
+                for (var k = 0; k < row.cells.length; k++) {
+                    var cell = row.cells[k];
+                    var cellSpan = cell.colSpan;
+                    cell.colSpan = 1;
+                    for (var l = 1; l < cellSpan; l++) {
+                        var cellClone = cell.cloneNode(true);
+                        row.cells[k + l - 1].insertAdjacentElement("afterEnd", cellClone);
+                    }
+                }
+                for (k = 0; k < row.cells.length; k++) {
+                    var cell = row.cells[k];
+                    var rowSpan = cell.rowSpan;
+                    cell.rowSpan = 1;
+                    for (var m = 1; m < rowSpan; m++) {
+                        var cellClone = cell.cloneNode(true);
+                        if (k == 0) {
+                            rows[j + m].insertAdjacentElement("afterBegin", cellClone);
+                        }
+                        else {
+                            rows[j + m].cells[k - 1].insertAdjacentElement("afterEnd", cellClone);
+                        }
+                    }
+                }
+            }
+            for (i = 0; i < filterCells.length; i++) {
+                filterCells[i].colIndex = filterCellClones[i].cellIndex;
+            }
+        }
+        window.calcColIndexes = calcColIndexes; //debug
+
+        function checkRowFilterability(row, startColIndex, endColIndex) {
+            //корректно работает для строк, не содержащих вертикально объединённых ячеек
+            var currentColIndex = 0;
+            for (var i = 0; i < row.cells.length; i++) {
+                var cell = row.cells[i];
+                if (cell.colSpan > 1) {
+                    var spanRightEdgeColIndex = currentColIndex + cell.colSpan - 1;
+                    if (currentColIndex <= endColIndex && spanRightEdgeColIndex >= startColIndex) return false;
+                }
+                currentColIndex += cell.colSpan;
+            }
+            return true;
+        }
+
+        function getCellByColIndex(row, colIndex) {
+            //корректно работает для строк, не содержащих вертикально объединённых ячеек
+            var currentColIndex = 0;
+            for (var i = 0; i < row.cells.length; i++) {
+                var cell = row.cells[i];
+                if (i == colIndex) return cell;
+                currentColIndex += cell.colSpan;
+            }
+        }
+
+        function applyForCellsInCols(startCell, endCell, action) {
+            var errorCellName;
+            if (!startCell.hasOwnProperty("colIndex")) errorCellName = "startCell";
+            if (!endCell.hasOwnProperty("colIndex")) errorCellName = "endCell";
+            if (errorCellName) {
+                throw new Error("Parameter '" + errorCellName + "' references a cell without 'colIndex' property. Consider calling 'colCanFilter', 'colsAllCanFilter' or 'calcColIndexes' for it first. ")
+            }
+            var row = startCell.parentElement;
+            for (var i = startCell.colIndex; i <= endCell.colIndex; i++) {
+                var cell = getCellByColIndex(row, i);
+                if (action(cell) === false) return false;
+            }
+            return true;
+        }
+
     // /private methods
 
     // public methods
@@ -363,44 +443,70 @@ window.StickyFilter = (function () {
                 return null;
             }
 
-            function colCanFilter(cell) {
-                return colsAllCanFilter(cell, cell);
+            function findCounterpart(row, originalCell) {
+                //корректно работает для строк, не содержащих вертикально объединённых ячеек,
+                //а так как используется при выяснении возможности включения фильтров, при наличии
+                //вертикально объединённыз ячеек последующие проверки нивелируют возможные
+                //некорректности
+                var table = row.closest("table");
+                calcColIndexes(table, [originalCell]);
+                return getCellByColIndex(row, originalCell.colIndex);
             }
 
-            function colsAllCanFilter(startCell, endCell) {
+            function colCanFilter(row, cell) {
+                return colsAllCanFilter(row, cell, cell);
+            }
+
+            function colsAllCanFilter(filterRow, startCell, endCell) {
                 //столбцы разрешено фильтровать, если разрешена фильтрация таблицы по признаку
                 //исключительно горизонтальных объединений в незакреплённых строках
-                var table = startCell.closest("table");
+                var table = filterRow.closest("table");
                 if (!tableCanFilter(table)) return false;
-                //и если все ячейки незакреплённых строк и первой строки (которая может быть закреплена),
+                //и если все ячейки незакреплённых строк и строки фильтра (которая может быть закреплена),
                 //входящие в объединения, не относятся к проверяемым столбцам
+                calcColIndexes(table, [startCell, endCell]);
                 var nonStickyRows = table.querySelectorAll("tr:not(." + RS_CLASS + ")");
-                var firstRow = table.rows[0];
+                if (!checkRowFilterability(filterRow, startCell.colIndex, endCell.colIndex)) return false;
+                for (var i = 0; i < nonStickyRows.length; i++) {
+                    var nonStickyRow = nonStickyRows[i];
+                    if (nonStickyRow === filterRow) continue; //уже проверено
+                    if (!checkRowFilterability(nonStickyRow, startCell.colIndex, endCell.colIndex)) return false;
+                }
                 return true;
             }
 
-            function colHasFilter(element) {
-                return true;
+            function colHasFilter(cell) {
+                return hasClass(cell, CF_CLASS);
             }
 
-            function colsHasFilters() {
-                return true;
+            function colsHasFilters(startCell, endCell) {
+                //внимание: вызывать только после вызова colCanFilter или colsAllCanFilter
+                var filterRow = startCell.parentElement;
+                return applyForCellsInCols(startCell, endCell, function (cell) {
+                    return colHasFilter(cell);
+                });
             }
 
-            function enableFilterForCol(col) {
-
+            function enableFilterForCol(cell) {
+                addClass(cell, CF_CLASS);
             }
 
-            function enableFiltersForCols(startCol, endCol) {
-
+            function enableFiltersForCols(startCell, endCell) {
+                //внимание: вызывать только после вызова colCanFilter или colsAllCanFilter
+                applyForCellsInCols(startCell, endCell, function (cell) {
+                    enableFilterForCol(cell);
+                });
             }
 
-            function disableFilterForCol(col) {
-
+            function disableFilterForCol(cell) {
+                removeClass(cell, CF_CLASS);
             }
 
-            function disableFiltersForCols(startCol, endCol) {
-
+            function disableFiltersForCols(startCell, endCell) {
+                //внимание: вызывать только после вызова colCanFilter или colsAllCanFilter
+                applyForCellsInCols(startCell, endCell, function (cell) {
+                    disableFilterForCol(cell);
+                });
             }
 
             function rowCanStick(row) {
@@ -543,12 +649,13 @@ window.StickyFilter = (function () {
         },
 
         getFilterRow: getFilterRow,
+        findCounterpart: findCounterpart,
         colCanFilter: colCanFilter,
         colsAllCanFilter: colsAllCanFilter,
         colHasFilter: colHasFilter,
         colsHasFilters: colsHasFilters,
         enableFilterForCol: enableFilterForCol,
-        enableFiltersForCols: enableFilterForCol,
+        enableFiltersForCols: enableFiltersForCols,
         disableFilterForCol: disableFilterForCol,
         disableFiltersForCols: disableFiltersForCols,
         rowCanStick: rowCanStick,
