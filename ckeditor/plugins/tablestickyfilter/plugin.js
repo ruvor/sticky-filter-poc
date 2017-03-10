@@ -318,6 +318,18 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
         CKEDITOR.addCss(" \n\
             td.column-filter, th.column-filter { \n\
                 background: #feeeff; \n\
+                position: relative; \n\
+            } \n\
+            td.column-filter:hover::after, th.column-filter:hover::after { \n\
+                content: 'С фильтром'; \n\
+                position: absolute; \n\
+                top: -10px; \n\
+                left: 90%; \n\
+                white-space: nowrap; \n\
+                border-radius: 5px; \n\
+                background: wheat; \n\
+                padding: 2px 5px; \n\
+                opacity: .5; \n\
             } \n\
             .row-sticky td, .row-sticky th { \n\
                 background: #eefeff; \n\
