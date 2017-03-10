@@ -522,40 +522,36 @@ window.StickyFilter = (function () {
 
     injectRequiredStyles();
 
-    var StickyFilter = {};
-
-    StickyFilter.enableTableFiltering = enableTableFiltering;
-    StickyFilter.disableTableFiltering = disableTableFiltering;
-    StickyFilter.enableTableSticking = enableTableSticking;
-    StickyFilter.disableTableSticking = disableTableSticking;
-    Object.defineProperty(StickyFilter, "isFiltering", {
-        get: function() {
+    var StickyFilter = {
+        enableTableFiltering: enableTableFiltering,
+        disableTableFiltering: disableTableFiltering,
+        enableTableSticking: enableTableSticking,
+        disableTableSticking: disableTableSticking,
+        get isFiltering() {
             return isFiltering;
-        }
-    });
-    Object.defineProperty(StickyFilter, "isSticky", {
-        get: function() {
+        },
+        get isSticky() {
             return isSticky;
-        }
-    });
+        },
 
-    StickyFilter.colCanFilter = colCanFilter;
-    StickyFilter.colsAllCanFilter = colsAllCanFilter;
-    StickyFilter.colHasFilter = colHasFilter;
-    StickyFilter.colsHasFilters = colsHasFilters;
-    StickyFilter.enableFilterForCol = enableFilterForCol;
-    StickyFilter.enableFiltersForCols = enableFilterForCol;
-    StickyFilter.disableFilterForCol = disableFilterForCol;
-    StickyFilter.disableFiltersForCols = disableFiltersForCols;
-    StickyFilter.rowCanStick = rowCanStick;
-    StickyFilter.rowsAllCanStick = rowsAllCanStick;
-    StickyFilter.rowIsSticky = rowIsSticky;
-    StickyFilter.rangeHasStickyRows = rangeHasStickyRows;
-    StickyFilter.rangeIsAllSticky = rangeIsAllSticky;
-    StickyFilter.stickRow = stickRow;
-    StickyFilter.stickRows = stickRows;
-    StickyFilter.unstickRow = unstickRow;
-    StickyFilter.unstickRows = unstickRows;
+        colCanFilter: colCanFilter,
+        colsAllCanFilter: colsAllCanFilter,
+        colHasFilter: colHasFilter,
+        colsHasFilters: colsHasFilters,
+        enableFilterForCol: enableFilterForCol,
+        enableFiltersForCols: enableFilterForCol,
+        disableFilterForCol: disableFilterForCol,
+        disableFiltersForCols: disableFiltersForCols,
+        rowCanStick: rowCanStick,
+        rowsAllCanStick: rowsAllCanStick,
+        rowIsSticky: rowIsSticky,
+        rangeHasStickyRows: rangeHasStickyRows,
+        rangeIsAllSticky: rangeIsAllSticky,
+        stickRow: stickRow,
+        stickRows: stickRows,
+        unstickRow: unstickRow,
+        unstickRows: unstickRows,
+    };
 
     return StickyFilter;
 })();
