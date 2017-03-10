@@ -216,6 +216,31 @@ window.StickyFilter = (function () {
             else element.className = newClasses;
         }
 
+        function injectRequiredStyles() {
+            var requiredStyles = "\
+                ." + TF_CLASS + " input { \n\
+                    box-sizing: border-box; \n\
+                    display: block; \n\
+                    width: 100%; \n\
+                } \n\
+                ." + WRAPPER_CLASS + " { \n\
+                    position: fixed; \n\
+                    top: 0; \n\
+                    left: 0; \n\
+                    width: 100%; \n\
+                    height: 0; \n\
+                } \n\
+                ." + WRAPPER_CLASS + " table { \n\
+                    position: absolute; \n\
+                    min-width: 0; \n\
+                    max-width: none; \n\
+                } \n\
+            ";
+            var styleElement = document.createElement("style");
+            styleElement.textContent = requiredStyles;
+            document.querySelector("head").insertAdjacentElement("beforeEnd", styleElement);
+        }
+
     // /private methods
 
     // public methods
@@ -495,28 +520,7 @@ window.StickyFilter = (function () {
 
     // /public methods
 
-    var requiredStyles = "\
-        ." + TF_CLASS + " input { \n\
-            box-sizing: border-box; \n\
-            display: block; \n\
-            width: 100%; \n\
-        } \n\
-        ." + WRAPPER_CLASS + " { \n\
-            position: fixed; \n\
-            top: 0; \n\
-            left: 0; \n\
-            width: 100%; \n\
-            height: 0; \n\
-        } \n\
-        ." + WRAPPER_CLASS + " table { \n\
-            position: absolute; \n\
-            min-width: 0; \n\
-            max-width: none; \n\
-        } \n\
-    ";
-    var styleElement = document.createElement("style");
-    styleElement.textContent = requiredStyles;
-    document.querySelector("head").insertAdjacentElement("beforeEnd", styleElement);
+    injectRequiredStyles();
 
     var StickyFilter = {};
 
