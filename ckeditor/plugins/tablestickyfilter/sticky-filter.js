@@ -78,16 +78,16 @@ window.StickyFilter = (function () {
         }
 
         function filterTable(table) {
-            var filteringRow = table.querySelector("tr." + RF_CLASS);
+            var filterRow = table.querySelector("tr." + RF_CLASS);
             var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
-            if (!filteringRow || rows.length == 0) return;
+            if (!filterRow || rows.length == 0) return;
             var filterValues = {};
-            var filteringCells = filteringRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
-            for (var i = 0; i < filteringCells.length; i++) {
-                var filteringCell = filteringCells[i];
-                var filterInput = filteringCell.querySelector("input[type=text]");
+            var filterCells = filterRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
+            for (var i = 0; i < filterCells.length; i++) {
+                var filterCell = filterCells[i];
+                var filterInput = filterCell.querySelector("input[type=text]");
                 if (filterInput && filterInput.value) {
-                    filterValues[filteringCell.colIndex] = filterInput.value.toLowerCase();
+                    filterValues[filterCell.colIndex] = filterInput.value.toLowerCase();
                 }
             }
             var rowsToHide = [];
@@ -96,8 +96,8 @@ window.StickyFilter = (function () {
                 var row = rows[j];
                 var hideRow = false;
                 var cols = row.querySelectorAll("th, td");
-                for (var filteringColIndex in filterValues) {
-                    if (getCellByColIndex(row, filteringColIndex).textContent.toLowerCase().indexOf(filterValues[filteringColIndex]) < 0) {
+                for (var filterColIndex in filterValues) {
+                    if (getCellByColIndex(row, filterColIndex).textContent.toLowerCase().indexOf(filterValues[filterColIndex]) < 0) {
                         hideRow = true;
                         break;
                     }
@@ -337,20 +337,20 @@ window.StickyFilter = (function () {
                 var allTables = document.querySelectorAll("table");
                 for (var i = 0; i < allTables.length; i++) {
                     var table = allTables[i];
-                    var filteringRow = getFilterRow(table)
+                    var filterRow = getFilterRow(table)
                     //предполагается, что фильтровальные ячейки будут в одной строке таблицы
-                    if (!filteringRow) continue; //если в таблице нет фильтровальных ячеек
+                    if (!filterRow) continue; //если в таблице нет фильтровальных ячеек
                     percentizeTable(table);
-                    var filteringCells = filteringRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
-                    calcColIndexes(table, filteringCells);
-                    for (var j = 0; j < filteringCells.length; j++) {
-                        cell = filteringCells[j];
+                    var filterCells = filterRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
+                    calcColIndexes(table, filterCells);
+                    for (var j = 0; j < filterCells.length; j++) {
+                        cell = filterCells[j];
                         var filterInput = document.createElement("input");
                         filterInput.setAttribute("type", "text");
                         filterInput.addEventListener("input", onTableFilterInput);
-                        filteringCells[j].appendChild(filterInput);
+                        filterCells[j].appendChild(filterInput);
                     }
-                    addClass(filteringRow, RF_CLASS);
+                    addClass(filterRow, RF_CLASS);
                     addClass(table, TF_CLASS);
                 }
                 if (isSticky) {
@@ -365,11 +365,11 @@ window.StickyFilter = (function () {
                 var filteredTables = document.querySelectorAll("table." + TF_CLASS);
                 for (var i = 0; i < filteredTables.length; i++) {
                     var table = filteredTables[i];
-                    var filteringRow = table.querySelector("." + RF_CLASS);
-                    removeClass(filteringRow, RF_CLASS);
-                    var filteringCells = filteringRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
-                    for (var j = 0; j < filteringCells.length; j++) {
-                        filteringCells[j].querySelector("input[type=text]").remove();
+                    var filterRow = table.querySelector("." + RF_CLASS);
+                    removeClass(filterRow, RF_CLASS);
+                    var filterCells = filterRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
+                    for (var j = 0; j < filterCells.length; j++) {
+                        filterCells[j].querySelector("input[type=text]").remove();
                     }
                     unfilterTable(table);
                     removeClass(table, TF_CLASS);
