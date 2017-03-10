@@ -243,12 +243,12 @@ window.StickyFilter = (function () {
             document.querySelector("head").insertAdjacentElement("beforeEnd", styleElement);
         }
 
-        function calcColIndexes(table, filterCells) {
+        function calcColIndexes(table, cells) {
             //переданным ячейкам добавляется свойство colIndex, отражающее индексы их столбцов
             var tableClone = table.cloneNode(true);
             var filterCellClones = [];
-            for (var i = 0; i < filterCells.length; i++) {
-                var filterCell = filterCells[i];
+            for (var i = 0; i < cells.length; i++) {
+                var filterCell = cells[i];
                 filterCellClones.push(tableClone.rows[filterCell.parentElement.rowIndex].cells[filterCell.cellIndex]);
             }
             var rows = tableClone.rows;
@@ -278,8 +278,8 @@ window.StickyFilter = (function () {
                     }
                 }
             }
-            for (i = 0; i < filterCells.length; i++) {
-                filterCells[i].colIndex = filterCellClones[i].cellIndex;
+            for (i = 0; i < cells.length; i++) {
+                cells[i].colIndex = filterCellClones[i].cellIndex;
             }
         }
         window.calcColIndexes = calcColIndexes; //debug
