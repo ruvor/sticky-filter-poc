@@ -1,4 +1,6 @@
 //TODO: добавить JSDocов
+//TODO: переписать applyForCellsInCols на неиспользование индексов, тогда предупреждение оттуда убрать (и отовсюду, где она вызывается),
+//а также colsAllCanFilter на неиспользование строки и убрать строку из возврата getSelectionEdgeCells
 CKEDITOR.plugins.add( 'tablestickyfilter', {
     requires: 'tabletools,dialog,contextmenu',
     init: function( editor ) {
