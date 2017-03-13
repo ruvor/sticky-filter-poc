@@ -4,6 +4,7 @@ if (window.StickyFilter === undefined) {
 
 window.StickyFilter = (function () {
     // const
+
         var TP_CLASS = "table-prcnt"; //CSS-класс, назначаемый "процентизованным" таблицам
         var TF_CLASS = "table-filter"; //CSS-класс, назначаемый таблицам с фильтром при включении фильтрования
         var RF_CLASS = "row-filter"; //CSS-класс, назначаемый строкам с фильтром при включении фильтрования
@@ -11,6 +12,7 @@ window.StickyFilter = (function () {
         var TS_CLASS = "table-sticky"; //CSS-класс, назначаемый таблицам с закреплёнными строками при включении закрепления
         var RS_CLASS = "row-sticky"; //CSS-класс строк, используемый как признак их закрепляемости
         var WRAPPER_CLASS = "sticky-wrapper"; //CSS-класс обёртки закреплённых таблиц
+
     // /const
 
     var stickyTablesCache;
