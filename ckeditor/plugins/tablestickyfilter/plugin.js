@@ -339,6 +339,11 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 evt.data.dataValue = tempDiv.innerHTML;
             }
         });
+
+        editor.filter.addFeature({
+            name: "tableWithStickyFilter",
+            allowedContent: "tr th td(*)"
+        });
     },
     onLoad: function() {
         //стили оформления закреплённых строк и фильтровальных ячеек при редактировании контента
