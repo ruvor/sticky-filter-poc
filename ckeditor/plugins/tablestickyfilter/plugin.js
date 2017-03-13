@@ -326,6 +326,19 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 tabletoolsMenuInjector.apply();
             });
         }
+
+        editor.on("getData", function (evt, editor) {
+            var tempDiv = document.createElement("div");
+            tempDiv.innerHTML = evt.data.dataValue;
+            var tables = tempDiv.querySelectorAll("table");
+            var someTableHasBeenChanged = false;
+            for (var i = 0; i < tables.length; i++) {
+                var someTableHasBeenChanged = StickyFilter.sanitizeTable(tables[i]);
+            }
+            if (someTableHasBeenChanged) {
+                evt.data.dataValue = tempDiv.innerHTML;
+            }
+        });
     },
     onLoad: function() {
         //стили оформления закреплённых строк и фильтровальных ячеек при редактировании контента
