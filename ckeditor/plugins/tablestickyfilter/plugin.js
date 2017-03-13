@@ -332,7 +332,9 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
             var tables = tempDiv.querySelectorAll("table");
             var someTableHasBeenChanged = false;
             for (var i = 0; i < tables.length; i++) {
-                var someTableHasBeenChanged = StickyFilter.sanitizeTable(tables[i]);
+                if (StickyFilter.sanitizeTable(tables[i])) {
+                    someTableHasBeenChanged = true;
+                }
             }
             if (someTableHasBeenChanged) {
                 evt.data.dataValue = tempDiv.innerHTML;
