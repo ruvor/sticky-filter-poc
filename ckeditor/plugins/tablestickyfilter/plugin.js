@@ -6,6 +6,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
         scriptElement.src = this.path + "sticky-filter.js";
         document.querySelector("head").insertAdjacentElement("beforeEnd", scriptElement);
 
+        /** Возвращает краевые ячейки, соответствующие столбцам текущего выделения. */
         function getSelectionEdgeCells() {
             //рассматриваются выделенные ячейки только одной строки, строки ячейки начала
             //выбранного диапазона, потому что весьма сомнительно, что кому-то понадобится
@@ -41,6 +42,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
             };
         }
 
+        /** Возвращает краевые строки, соответствующие текущему выделению. */
         function getSelectionEdgeRows() {
             var selection = editor.getSelection();
             var range = selection.getRanges()[0];
@@ -153,7 +155,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 });
             // /пункты меню
 
-            //объект, обеспечивающий внедрение пунктов меню в подменю плагина tabletools
+            /** Объект, обеспечивающий внедрение пунктов меню в подменю плагина tabletools. */
             var tabletoolsMenuInjector = {
                 tablecolumnMenuItem: undefined,
                 originalTablecolumnMenuItemGetItems: undefined,

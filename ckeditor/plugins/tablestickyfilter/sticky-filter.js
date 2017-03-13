@@ -57,6 +57,7 @@ window.StickyFilter = (function () {
 
     // private methods
 
+        //обрабатывает ввод в фильтрах таблиц
         function onTableFilterInput(e) {
             var peerInput = findPeerInput(e.target);
             if (peerInput) {
@@ -65,6 +66,7 @@ window.StickyFilter = (function () {
             filterTable(closestAncestor(e.target, "table"));
         }
 
+        //обрабатывает ввод в фильтрах плавающих копий таблиц
         function onStickyTableFilterInput(e) {
             if (!elementMatches(e.target, "." + CF_CLASS + " input[type=text]")) return;
             var peerInput = findPeerInput(e.target);
@@ -74,6 +76,7 @@ window.StickyFilter = (function () {
             peerInput.dispatchEvent(event);
         }
 
+        //находит для поля ввода фильтра таблицы соответствующее поле в плавающей таблице и наоборот
         function findPeerInput(origInput) {
             var num;
             var origTable = closestAncestor(origInput, "table");
@@ -90,6 +93,7 @@ window.StickyFilter = (function () {
             return peerInput;
         }
 
+        //применяет фильтры к содержимому таблицы
         function filterTable(table) {
             var filterRow = table.querySelector("tr." + RF_CLASS);
             var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
@@ -121,6 +125,7 @@ window.StickyFilter = (function () {
             for (i = 0; i < rowsToShow.length; i++) rowsToShow[i].style.display = "table-row";
         }
 
+        //отменяет действие фильтров на таблицу
         function unfilterTable(table) {
             var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
             for (var j = 0; j < rows.length; j++) {
@@ -129,6 +134,7 @@ window.StickyFilter = (function () {
             }
         }
 
+        //обрабатывает прокрутку окна браузера
         function onWindowScroll(e) {
             for (var i = 0; i < stickyTablesCache.length; i++) {
                 var table = stickyTablesCache[i];
@@ -171,6 +177,7 @@ window.StickyFilter = (function () {
             }
         }
 
+        //преобразовывает ширины столбцов таблицы в процентные значения
         function percentizeTable(table) {
             if (hasClass(table, TP_CLASS)) return;
             var firstRow = table.rows[0];
@@ -196,6 +203,7 @@ window.StickyFilter = (function () {
             addClass(table, TP_CLASS);
         }
 
+        //подсчитывает столбцы строки
         function countRowCols(row) {
             var cells = row.cells;
             var colsNum = 0;
@@ -205,14 +213,17 @@ window.StickyFilter = (function () {
             return colsNum;
         }
 
+        //подсчитывает столбцы таблицы
         function countTableCols(table) {
             return countRowCols(table.rows[0]);
         }
 
+        //проверяет, имеет ли элемент указанный CSS-класс
         function hasClass(element, cssClass) {
             return new RegExp("\\b" + cssClass + "\\b").test(element.className);
         }
 
+        //добавляет CSS-класс элементу
         function addClass(element, cssClass) {
             var oldClasses = element.className;
             if (hasClass(element, cssClass)) return;
@@ -222,6 +233,7 @@ window.StickyFilter = (function () {
             element.className = newClasses;
         }
 
+        //удаляет CSS-класс у элемента
         function removeClass(element, cssClass) {
             var oldClasses = element.className;
             if (!hasClass(element, cssClass)) return;
@@ -231,6 +243,7 @@ window.StickyFilter = (function () {
             else element.className = newClasses;
         }
 
+        //внедряет стили, требуемые для фильтрации и закрепления
         function injectRequiredStyles() {
             var requiredStyles = "\
                 ." + TF_CLASS + " input { \n\
@@ -256,8 +269,9 @@ window.StickyFilter = (function () {
             document.querySelector("head").insertAdjacentElement("beforeEnd", styleElement);
         }
 
+        //определяет индексы столбцов таблицы, к которым относятся указанные ячейки,
+        //и добавляет этим ячейкам свойство, содержащее этот индекс
         function calcColIndexes(table, cells) {
-            //переданным ячейкам добавляется свойство colIndex, отражающее индексы их столбцов
             var tableClone = table.cloneNode(true);
             var filterCellClones = [];
             for (var i = 0; i < cells.length; i++) {
@@ -296,6 +310,7 @@ window.StickyFilter = (function () {
             }
         }
 
+        //проверяет доступность фильтрации для указанной строки и диапазона столбцов
         function checkRowFilterability(row, startColIndex, endColIndex) {
             //корректно работает для строк, не содержащих вертикально объединённых ячеек
             var currentColIndex = 0;
@@ -310,6 +325,7 @@ window.StickyFilter = (function () {
             return true;
         }
 
+        //возвращяет ячейку строки по индексу столбца
         function getCellByColIndex(row, colIndex) {
             //корректно работает для строк, не содержащих вертикально объединённых ячеек
             var currentColIndex = 0;
@@ -320,6 +336,9 @@ window.StickyFilter = (function () {
             }
         }
 
+        //применяет действие к диапазону ячеек, возвращает true, если все вызовы функции действия
+        //вернули true; прекращает применение действия к ячейкам, если функция действия вернёт false,
+        //сама функция при этом также вернёт false
         function applyForCellsInCols(startCell, endCell, action) {
             //корректно работает для строк, не содержащих вертикально объединённых ячеек
             //из-за использования getCellByColIndex
@@ -338,6 +357,9 @@ window.StickyFilter = (function () {
             return true;
         }
 
+        //применяет действие к диапазону строк, возвращает true, если все вызовы функции действия
+        //вернули true; прекращает применение действия к строкам, если функция действия вернёт false,
+        //сама функция при этом также вернёт false
         function applyForRows(startRow, endRow, action) {
             if (typeof(action) != "function") return false;
             var rows = startRow.parentElement.rows;
@@ -348,6 +370,7 @@ window.StickyFilter = (function () {
             return true;
         }
 
+        //убирает из таблицы все некорректные закреплённые строки
         function sanitizeTableStickiness(table) {
             var result = false;
             var rows = table.rows;
@@ -374,6 +397,7 @@ window.StickyFilter = (function () {
             return result;
         }
 
+        //убирает из таблицы все некорректные фильтры
         function sanitizeTableFiltering(table) {
             var result = false;
             var filterRow = getFilterRow(table);
@@ -396,6 +420,7 @@ window.StickyFilter = (function () {
 
         // методы для вызова при показе содержимого
 
+            /** Включает фильтрование в таблицах на странице. */
             function enableTableFiltering() {
                 if (isFiltering) return;
                 var allTables = document.querySelectorAll("table");
@@ -424,6 +449,7 @@ window.StickyFilter = (function () {
                 isFiltering = true;
             }
 
+            /** Выключает фильтрование в таблицах на странице. */
             function disableTableFiltering() {
                 if (!isFiltering) return;
                 var filteredTables = document.querySelectorAll("table." + TF_CLASS);
@@ -445,6 +471,7 @@ window.StickyFilter = (function () {
                 isFiltering = false;
             }
 
+            /** Включает закрепление строк в таблицах на странице. */
             function enableTableSticking() {
                 if (isSticky) return;
                 var wrapper = document.createElement("div");
@@ -474,6 +501,7 @@ window.StickyFilter = (function () {
                 isSticky = true;
             }
 
+            /** Выключает закрепление строк в таблицах на странице. */
             function disableTableSticking() {
                 if (!isSticky) return;
                 window.removeEventListener("scroll", onWindowScroll);
@@ -491,6 +519,7 @@ window.StickyFilter = (function () {
 
         // методы для вызова плагином при редактировании содержимого
 
+            /** Проверяет доступно ли добавление фмльтров в таблицу. */
             function tableCanFilter(table) {
                 //таблицу разрешено фильтровать, если все её незакреплённые строки не содержат
                 //объединённых ячеек совсем или содержат, но они объединены только по горизонтали
@@ -504,6 +533,7 @@ window.StickyFilter = (function () {
                 return true;
             }
 
+            /** Возвращает первую строку таблицы с фильтровальными ячейками или null. */
             function getFilterRow(table) {
                 //возвращает строку, содержащую первую ячейку с классом CF_CLASS, или null
                 var firstFilteringCell = table.querySelector("th." + CF_CLASS + ", td." + CF_CLASS);
@@ -511,6 +541,9 @@ window.StickyFilter = (function () {
                 return null;
             }
 
+            /** Находит в указанной строке ячейку, соответствующую по индексу столбца
+             *  указанной ячейке.
+             */
             function findCounterpart(row, originalCell) {
                 //корректно работает для строк, не содержащих вертикально объединённых ячеек,
                 //однако при выяснении возможности включения фильтров можно применять и при наличии
@@ -528,16 +561,20 @@ window.StickyFilter = (function () {
                 return counterpart;
             }
 
+            /** Проверяет, доступно ли добавление фильтра в указанную ячейку указанной строки. */
             function colCanFilter(row, cell) {
                 return colsAllCanFilter(row, cell, cell);
             }
 
+            /** Проверяет, доступно ли добавление фильтров в указанные ячейки указанной строки.
+             *  Ячейки должны входить в одну строку.
+            */
             function colsAllCanFilter(filterRow, startCell, endCell) {
                 //столбцы разрешено фильтровать, если разрешена фильтрация таблицы по признаку
-                //исключительно горизонтальных объединений в незакреплённых строках
+                //исключительно горизонтальных объединений в незакреплённых строках...
                 var table = closestAncestor(filterRow, "table");
                 if (!tableCanFilter(table)) return false;
-                //и если все ячейки незакреплённых строк и строки фильтра (которая может быть закреплена),
+                //...и если все ячейки незакреплённых строк и строки фильтра (которая может быть закреплена),
                 //входящие в объединения, не относятся к проверяемым столбцам
                 calcColIndexes(table, [startCell, endCell]);
                 var nonStickyRows = table.querySelectorAll("tr:not(." + RS_CLASS + ")");
@@ -550,10 +587,12 @@ window.StickyFilter = (function () {
                 return true;
             }
 
+            /** Проверяет, добавлен ли фильтр в указанную ячейку. */
             function colHasFilter(cell) {
                 return hasClass(cell, CF_CLASS);
             }
 
+            /** Проверяет, добавлены ли фильтры во все ячейки указанного диапазона. */
             function colsHasFilters(startCell, endCell) {
                 //внимание: вызывать только после вызова colCanFilter или colsAllCanFilter
                 return applyForCellsInCols(startCell, endCell, function (cell) {
@@ -561,10 +600,12 @@ window.StickyFilter = (function () {
                 });
             }
 
+            /** Добавляет фильтр в указанную ячейку. */
             function enableFilterForCol(cell) {
                 addClass(cell, CF_CLASS);
             }
 
+            /** Добавляет фильтры во все ячейки указанного диапазона. */
             function enableFiltersForCols(startCell, endCell) {
                 //внимание: вызывать только после вызова colCanFilter или colsAllCanFilter
                 applyForCellsInCols(startCell, endCell, function (cell) {
@@ -572,10 +613,12 @@ window.StickyFilter = (function () {
                 });
             }
 
+            /** Убирает фильтр из указанной ячейки. */
             function disableFilterForCol(cell) {
                 removeClass(cell, CF_CLASS);
             }
 
+            /** Убирает фильтры из всех ячеек указанного диапазона. */
             function disableFiltersForCols(startCell, endCell) {
                 //внимание: вызывать только после вызова colCanFilter или colsAllCanFilter
                 applyForCellsInCols(startCell, endCell, function (cell) {
@@ -583,10 +626,12 @@ window.StickyFilter = (function () {
                 });
             }
 
+            /** Проверяет, можно ли закреплять указанную строку. */
             function rowCanStick(row) {
                 return rowsAllCanStick(row, row);
             }
 
+            /** Проверяет, можно ли закреплять все строки в указанном диапазоне. */
             function rowsAllCanStick(startRow, endRow) {
                 var table = closestAncestor(startRow, "table");
                 var colsNum = countTableCols(table);
@@ -617,10 +662,12 @@ window.StickyFilter = (function () {
                 return maxRowSpanDepth <= rowsRangeHeight;
             }
 
+            /** Проверяет, закреплена ли указанная строка. */
             function rowIsSticky(row) {
                 return hasClass(row, RS_CLASS);
             }
 
+            /** Проверяет, есть ли в указанном диапазоне закреплённые строки. */
             function rangeHasStickyRows(startRow, endRow) {
                 if (startRow === endRow) {
                     return rowIsSticky(startRow);
@@ -630,6 +677,7 @@ window.StickyFilter = (function () {
                 });
             }
 
+            /** Проверяет, все ли строки указанного диапазона закреплены. */
             function rangeIsAllSticky(startRow, endRow) {
                 if (startRow === endRow) {
                     return rowIsSticky(startRow);
@@ -639,22 +687,26 @@ window.StickyFilter = (function () {
                 });
             }
 
+            /** Закрепляет строку. */
             function stickRow(row) {
                 addClass(row, RS_CLASS);
             }
 
+            /** Закрепляет строки указанного диапазона. */
             function stickRows(startRow, endRow) {
                 applyForRows(startRow, endRow, function (row) {
                     stickRow(row);
                 });
             }
 
+            /** Открепляет строку. */
             function unstickRow(row, sanitizeFiltering) {
                 removeClass(row, RS_CLASS);
                 if (sanitizeFiltering == undefined) sanitizeFiltering = true;
                 if (sanitizeFiltering) sanitizeTableFiltering(closestAncestor(row, "table"));
             }
 
+            /** Открепляет строки указанного диапазона. */
             function unstickRows(startRow, endRow, sanitizeFiltering) {
                 applyForRows(startRow, endRow, function (row) {
                     unstickRow(row, false);
@@ -663,6 +715,10 @@ window.StickyFilter = (function () {
                 if (sanitizeFiltering) sanitizeTableFiltering(closestAncestor(startRow, "table"));
             }
 
+            /** Корректирует в таблице закреплённые строки и фильтры. Следует вызывать для того, чтобы
+             *  таблица, которая подверглась произвольным изменениям, имела только корректные фильтры
+             *  и закреплённые строки.
+             */
             function sanitizeTable(table) {
                 //проверки следует проводить именно в таком порядке, потому что
                 //изменения в закреплении могут потребовать изменений в фильтрации
