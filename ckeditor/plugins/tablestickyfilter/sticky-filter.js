@@ -3,6 +3,7 @@
 if (window.StickyFilter === undefined) {
 
 window.StickyFilter = (function () {
+
     // const
 
         var TP_CLASS = "table-prcnt"; //CSS-класс, назначаемый "процентизованным" таблицам
@@ -294,7 +295,6 @@ window.StickyFilter = (function () {
                 cells[i].colIndex = filterCellClones[i].cellIndex;
             }
         }
-        window.calcColIndexes = calcColIndexes; //debug
 
         function checkRowFilterability(row, startColIndex, endColIndex) {
             //корректно работает для строк, не содержащих вертикально объединённых ячеек
@@ -346,6 +346,48 @@ window.StickyFilter = (function () {
                 if (action(row) === false) return false;
             }
             return true;
+        }
+
+        function sanitizeTableStickiness(table) {
+            var result = false;
+            var rows = table.rows;
+            for (var i = 0; i < rows.length; i++) {
+                var row = rows[i];
+                if (!rowIsSticky(row)) continue;
+                var startRow = row;
+                var endRow = null;
+                for (i++; i < rows.length; i++) {
+                    var siblingRow = rows[i];
+                    if (!rowIsSticky(siblingRow)) break;
+                    endRow = siblingRow;
+                }
+                if (!endRow) {
+                    endRow = startRow;
+                }
+                while (!rowsAllCanStick(startRow, endRow)) {
+                    unstickRow(endRow);
+                    result = true;
+                    if (startRow === endRow) break;
+                    endRow = endRow.previousElementSibling;
+                }
+            }
+            return result;
+        }
+
+        function sanitizeTableFiltering(table) {
+            var result = false;
+            var filterRow = getFilterRow(table);
+            if (filterRow) {
+                var filterCells = filterRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
+                for (var k = 0; k < filterCells.length; k++) {
+                    var cell = filterCells[k];
+                    if (!colCanFilter(filterRow, cell)) {
+                        disableFilterForCol(cell);
+                        result = true;
+                    }
+                }
+            }
+            return result;
         }
 
     // /private methods
@@ -607,14 +649,24 @@ window.StickyFilter = (function () {
                 });
             }
 
-            function unstickRow(row) {
-                removeClass(row, RS_CLASS)
+            function unstickRow(row, sanitizeFiltering) {
+                removeClass(row, RS_CLASS);
+                if (sanitizeFiltering == undefined) sanitizeFiltering = true;
+                if (sanitizeFiltering) sanitizeTableFiltering(closestAncestor(row, "table"));
             }
 
-            function unstickRows(startRow, endRow) {
+            function unstickRows(startRow, endRow, sanitizeFiltering) {
                 applyForRows(startRow, endRow, function (row) {
-                    unstickRow(row);
+                    unstickRow(row, false);
                 });
+                if (sanitizeFiltering == undefined) sanitizeFiltering = true;
+                if (sanitizeFiltering) sanitizeTableFiltering(closestAncestor(startRow, "table"));
+            }
+
+            function sanitizeTable(table) {
+                //проверки следует проводить именно в таком порядке, потому что
+                //изменения в закреплении могут потребовать изменений в фильтрации
+                return sanitizeTableStickiness(table) | sanitizeTableFiltering(table);
             }
 
         // методы для вызова плагином при редактировании содержимого
@@ -654,6 +706,7 @@ window.StickyFilter = (function () {
         stickRows: stickRows,
         unstickRow: unstickRow,
         unstickRows: unstickRows,
+        sanitizeTable: sanitizeTable
     };
 
     return StickyFilter;
