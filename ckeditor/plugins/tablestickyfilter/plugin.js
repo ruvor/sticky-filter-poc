@@ -86,7 +86,8 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
             });
             editor.addCommand( 'stickRow', {
                 exec: function( editor ) {
-                    StickyFilter.stickRow(getSelectionEdgeRows().startRow);
+                    var edgeRows = getSelectionEdgeRows();
+                    StickyFilter.stickRow(edgeRows.startRow);
                 }
             });
             editor.addCommand( 'stickRows', {
@@ -97,7 +98,8 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
             });
             editor.addCommand( 'unstickRow', {
                 exec: function( editor ) {
-                    StickyFilter.unstickRow(getSelectionEdgeRows().startRow);
+                    var edgeRows = getSelectionEdgeRows();
+                    StickyFilter.unstickRow(edgeRows.startRow);
                 }
             });
             editor.addCommand( 'unstickRows', {
