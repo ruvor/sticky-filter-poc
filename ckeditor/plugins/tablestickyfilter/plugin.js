@@ -352,8 +352,11 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 background: #feeeff; \n\
                 position: relative; \n\
             } \n\
-            td.column-filter:hover, th.column-filter:hover { \n\
+            .row-sticky td.column-filter, .row-sticky th.column-filter { \n\
                 background: #f0e0fa; \n\
+            } \n\
+            td.column-filter:hover, th.column-filter:hover { \n\
+                background: #fde0fa; \n\
             } \n\
             td.column-filter:hover::after, th.column-filter:hover::after { \n\
                 content: 'С фильтром'; \n\
