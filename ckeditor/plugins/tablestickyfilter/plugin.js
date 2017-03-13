@@ -326,6 +326,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
         }
     },
     onLoad: function() {
+        //стили оформления закреплённых строк и фильтровальных ячеек при редактировании контента
         CKEDITOR.addCss(" \n\
             td.column-filter, th.column-filter { \n\
                 background: #feeeff; \n\
