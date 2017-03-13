@@ -348,30 +348,53 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
     onLoad: function() {
         //стили оформления закреплённых строк и фильтровальных ячеек при редактировании контента
         CKEDITOR.addCss(" \n\
+            tr.row-sticky td, tr.row-sticky th { \n\
+                background: #eefeff; \n\
+                transition: background .1s ease; \n\
+            } \n\
+            tr.row-sticky:hover td, tr.row-sticky:hover th { \n\
+                background: #e0f9f9; \n\
+                transition: background .1s ease; \n\
+            } \n\
             td.column-filter, th.column-filter { \n\
                 background: #feeeff; \n\
-                position: relative; \n\
-            } \n\
-            .row-sticky td.column-filter, .row-sticky th.column-filter { \n\
-                background: #f0e0fa; \n\
             } \n\
             td.column-filter:hover, th.column-filter:hover { \n\
                 background: #fde0fa; \n\
             } \n\
-            td.column-filter:hover::after, th.column-filter:hover::after { \n\
-                content: 'С фильтром'; \n\
+            tr.row-sticky td.column-filter, tr.row-sticky th.column-filter { \n\
+                background: #f0e0fa; \n\
+            } \n\
+            tr.row-sticky:hover td.column-filter, tr.row-sticky:hover th.column-filter { \n\
+                background: #e5d5f4; \n\
+            } \n\
+            td.column-filter, th.column-filter,\n\
+            tr.row-sticky td, tr.row-sticky th {\n\
+                position: relative; \n\
+            } \n\
+            td.column-filter:hover::after, th.column-filter:hover::after,\n\
+            tr.row-sticky td:hover::after, tr.row-sticky th:hover::after {\n\
                 position: absolute; \n\
                 z-index: 1; \n\
                 top: -10px; \n\
                 left: 90%; \n\
-                white-space: nowrap; \n\
                 border-radius: 5px; \n\
-                background: wheat; \n\
-                padding: 2px 5px; \n\
-                opacity: .5; \n\
+                background: white; \n\
+                padding: 0 3px; \n\
+                white-space: pre; \n\
+                font-size: 12px; \n\
+                line-height: 12px; \n\
+                opacity: .9; \n\
+                box-shadow: 0 0 5px 5px white, 3px 3px 5px 5px rgba(0, 0, 0, .1); \n\
             } \n\
-            .row-sticky td, .row-sticky th { \n\
-                background: #eefeff; \n\
+            td.column-filter:hover::after, th.column-filter:hover::after { \n\
+                content: 'Ячейка с фильтром'; \n\
+            } \n\
+            tr.row-sticky td:hover::after, tr.row-sticky th:hover::after { \n\
+                content: 'Строка закреплена'; \n\
+            } \n\
+            tr.row-sticky td.column-filter:hover::after, tr.row-sticky th.column-filter:hover::after { \n\
+                content: 'Ячейка с фильтром\\00000aСтрока закреплена'; \n\
             } \n\
         ");
     }
