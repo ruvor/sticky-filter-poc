@@ -1,5 +1,4 @@
 //TODO: добавить JSDocов
-//TODO: переписать applyForCellsInCols на неиспользование индексов, тогда предупреждение оттуда убрать (и отовсюду, где она вызывается),
 CKEDITOR.plugins.add( 'tablestickyfilter', {
     requires: 'tabletools,dialog,contextmenu',
     init: function( editor ) {

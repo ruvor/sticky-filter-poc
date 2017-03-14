@@ -336,22 +336,18 @@ window.StickyFilter = (function () {
             }
         }
 
-        //применяет действие к диапазону ячеек, возвращает true, если все вызовы функции действия
-        //вернули true; прекращает применение действия к ячейкам, если функция действия вернёт false,
-        //сама функция при этом также вернёт false
+        //применяет действие к диапазону ячеек _одной строки_, возвращает true, если все
+        //вызовы функции действия вернули true; прекращает применение действия к ячейкам,
+        //если функция действия вернёт false, сама функция при этом также вернёт false
         function applyForCellsInCols(startCell, endCell, action) {
-            //корректно работает для строк, не содержащих вертикально объединённых ячеек
-            //из-за использования getCellByColIndex
-            var errorCellName;
-            if (!startCell.hasOwnProperty("colIndex")) errorCellName = "startCell";
-            if (!endCell.hasOwnProperty("colIndex")) errorCellName = "endCell";
-            if (errorCellName) {
-                throw new Error("Parameter '" + errorCellName + "' references a cell without 'colIndex' property. Consider calling 'colCanFilter', 'colsAllCanFilter' or 'calcColIndexes' for it first.")
+            var row = startCell.parentElement;
+            if (row != endCell.parentElement) {
+                throw new Error("The cells specified do not reside in one row");
             }
             if (typeof(action) != "function") return false;
-            var row = startCell.parentElement;
-            for (var i = startCell.colIndex; i <= endCell.colIndex; i++) {
-                var cell = getCellByColIndex(row, i);
+            var cells = row.cells;
+            for (var i = startCell.cellIndex; i <= endCell.cellIndex; i++) {
+                var cell = cells[i];
                 if (action(cell) === false) return false;
             }
             return true;
@@ -597,7 +593,6 @@ window.StickyFilter = (function () {
 
             /** Проверяет, добавлены ли фильтры во все ячейки указанного диапазона. */
             function colsHasFilters(startCell, endCell) {
-                //внимание: вызывать только после вызова colCanFilter или colsAllCanFilter
                 return applyForCellsInCols(startCell, endCell, function (cell) {
                     return colHasFilter(cell);
                 });
@@ -610,7 +605,6 @@ window.StickyFilter = (function () {
 
             /** Добавляет фильтры во все ячейки указанного диапазона. */
             function enableFiltersForCols(startCell, endCell) {
-                //внимание: вызывать только после вызова colCanFilter или colsAllCanFilter
                 applyForCellsInCols(startCell, endCell, function (cell) {
                     enableFilterForCol(cell);
                 });
@@ -623,7 +617,6 @@ window.StickyFilter = (function () {
 
             /** Убирает фильтры из всех ячеек указанного диапазона. */
             function disableFiltersForCols(startCell, endCell) {
-                //внимание: вызывать только после вызова colCanFilter или colsAllCanFilter
                 applyForCellsInCols(startCell, endCell, function (cell) {
                     disableFilterForCol(cell);
                 });
