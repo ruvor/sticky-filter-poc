@@ -405,7 +405,7 @@ window.StickyFilter = (function () {
                 var filterCells = filterRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
                 for (var k = 0; k < filterCells.length; k++) {
                     var cell = filterCells[k];
-                    if (!colCanFilter(filterRow, cell)) {
+                    if (!colCanFilter(cell)) {
                         disableFilterForCol(cell);
                         result = true;
                     }
@@ -562,23 +562,25 @@ window.StickyFilter = (function () {
             }
 
             /** Проверяет, доступно ли добавление фильтра в указанную ячейку указанной строки. */
-            function colCanFilter(row, cell) {
-                return colsAllCanFilter(row, cell, cell);
+            function colCanFilter(cell) {
+                return colsAllCanFilter(cell, cell);
             }
 
-            /** Проверяет, доступно ли добавление фильтров в указанные ячейки указанной строки.
-             *  Ячейки должны входить в одну строку.
+            /**
+             * Проверяет, доступно ли добавление фильтров в указанные ячейки указанной строки.
+             * Ячейки должны входить в одну строку.
             */
-            function colsAllCanFilter(filterRow, startCell, endCell) {
+            function colsAllCanFilter(startCell, endCell) {
                 //столбцы разрешено фильтровать, если разрешена фильтрация таблицы по признаку
                 //исключительно горизонтальных объединений в незакреплённых строках...
-                var table = closestAncestor(filterRow, "table");
+                var table = closestAncestor(startCell, "table");
                 if (!tableCanFilter(table)) return false;
                 //...и если все ячейки незакреплённых строк и строки фильтра (которая может быть закреплена),
-                //входящие в объединения, не относятся к проверяемым столбцам
+                //входящие в объединения (горизонтальные, естественно), не относятся к проверяемым столбцам
                 calcColIndexes(table, [startCell, endCell]);
-                var nonStickyRows = table.querySelectorAll("tr:not(." + RS_CLASS + ")");
+                var filterRow = startCell.parentElement;
                 if (!checkRowFilterability(filterRow, startCell.colIndex, endCell.colIndex)) return false;
+                var nonStickyRows = table.querySelectorAll("tr:not(." + RS_CLASS + ")");
                 for (var i = 0; i < nonStickyRows.length; i++) {
                     var nonStickyRow = nonStickyRows[i];
                     if (nonStickyRow === filterRow) continue; //уже проверено

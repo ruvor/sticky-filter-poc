@@ -1,6 +1,5 @@
 //TODO: добавить JSDocов
 //TODO: переписать applyForCellsInCols на неиспользование индексов, тогда предупреждение оттуда убрать (и отовсюду, где она вызывается),
-//а также colsAllCanFilter на неиспользование строки и убрать строку из возврата getSelectionEdgeCells
 CKEDITOR.plugins.add( 'tablestickyfilter', {
     requires: 'tabletools,dialog,contextmenu',
     init: function( editor ) {
@@ -8,13 +7,13 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
         scriptElement.src = this.path + "sticky-filter.js";
         document.querySelector("head").insertAdjacentElement("beforeEnd", scriptElement);
 
-        /** Возвращает краевые ячейки, соответствующие столбцам текущего выделения. */
+        /** Возвращает краевые ячейки (нативные объекты HTMLElement), соответствующие столбцам текущего выделения. */
         function getSelectionEdgeCells() {
-            //рассматриваются выделенные ячейки только одной строки, строки ячейки начала
-            //выбранного диапазона, потому что весьма сомнительно, что кому-то понадобится
-            //включать фильтры для столбцов ячеек, выделенных в нескольких строках, а код при
-            //таком предположении значительно упрощается, кроме того, сам фильтр по условиям
-            //задачи располагается на одной строке
+            //рассматриваются выделенные ячейки только одной строки, потому что весьма сомнительно,
+            //что кому-то понадобится включать фильтры для столбцов ячеек, выделенных в нескольких
+            //строках, а код при таком предположении значительно упрощается, кроме того, сам фильтр
+            //по условиям задачи располагается на одной строке; в ситуации, когда выбраны ячейки сразу
+            //нескольких строк, принимается, что была выбрана одна ячейка (начальная ячейка диапазона)
             var selection = editor.getSelection();
             var range = selection.getRanges()[0];
             var startCell = range.startContainer.getAscendant({ th: 1, td: 1 }, true);
@@ -22,29 +21,30 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
             var endCell = range.endContainer.getAscendant({ th: 1, td: 1 }, true);
             var endCellRow = endCell.getParent();
             if (!startCellRow.equals(endCellRow)) {
-                //выбраны несколько строк, такая ситуация считается равнозначной выбору одной ячейки
+                //выбраны несколько строк
                 endCell = startCell;
             }
-            var startCellNode = startCell.$, endCellNode = endCell.$;
+            var startCellNode, endCellNode; //переменные для нативных объектов ячеек
             var table = startCellRow.getAscendant({ table: 1 }, true);
             var filterRow = StickyFilter.getFilterRow(table.$);
-            if (!filterRow) {
-                //в таблице ещё нет фильтровальных ячеек
-                filterRow = startCellRow.$;
-            }
-            else if (filterRow !== startCellRow.$) {
-                //в таблице уже есть фильтровальные ячейки, и они располагаются не на текущей строке
+            if (filterRow && filterRow !== startCellRow.$) {
+                //в таблице уже есть фильтровальные ячейки, и они располагаются не в текущей строке,
+                //в этом случае находятся ячейки, соответствующие выбранным, в строке с фильтрами
                 startCellNode = StickyFilter.findCounterpart(filterRow, startCell.$);
                 endCellNode = StickyFilter.findCounterpart(filterRow, endCell.$);
             }
+            else {
+                //в таблице ещё нет фильтровальных ячеек или они располагаются в текущей строке
+                startCellNode = startCell.$;
+                endCellNode = endCell.$;
+            }
             return {
-                filterRow: filterRow,
                 startCell: startCellNode,
                 endCell: endCellNode
             };
         }
 
-        /** Возвращает краевые строки, соответствующие текущему выделению. */
+        /** Возвращает краевые строки (нативные объекты HTMLElement), соответствующие текущему выделению. */
         function getSelectionEdgeRows() {
             var selection = editor.getSelection();
             var range = selection.getRanges()[0];
@@ -209,7 +209,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 if (edgeCells.startCell === edgeCells.endCell) {
                     //выбран один столбец
                     var cell = edgeCells.startCell;
-                    if (StickyFilter.colCanFilter(edgeCells.filterRow, cell)) {
+                    if (StickyFilter.colCanFilter(cell)) {
                         //и он может фильтроваться
                         if (StickyFilter.colHasFilter(cell)) {
                             //и он уже фильтруется
@@ -234,7 +234,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
                 }
                 else {
                     //выбраны несколько столбцов
-                    if (StickyFilter.colsAllCanFilter(edgeCells.filterRow, edgeCells.startCell, edgeCells.endCell)) {
+                    if (StickyFilter.colsAllCanFilter(edgeCells.startCell, edgeCells.endCell)) {
                         //и они все могут фильтроваться
                         if (StickyFilter.colsHasFilters(edgeCells.startCell, edgeCells.endCell)) {
                             //и среди них есть уже фильтрующиеся
