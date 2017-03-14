@@ -235,6 +235,7 @@ window.StickyFilter = (function () {
 
         //добавляет CSS-класс элементу
         function addClass(element, cssClass) {
+            if (hasClass(element, cssClass)) return;
             var oldClasses = element.className;
             if (hasClass(element, cssClass)) return;
             var newClasses = oldClasses;
@@ -245,8 +246,8 @@ window.StickyFilter = (function () {
 
         //удаляет CSS-класс у элемента
         function removeClass(element, cssClass) {
-            var oldClasses = element.className;
             if (!hasClass(element, cssClass)) return;
+            var oldClasses = element.className;
             var newClasses = oldClasses;
             newClasses = oldClasses.replace(new RegExp("\\b\\s?" + cssClass + "\\b", "g"), "");
             if (/^\s*$/.test(newClasses)) element.removeAttribute("class");
