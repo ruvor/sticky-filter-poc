@@ -205,7 +205,14 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
 
                 //активация пунктов меню, относящихся к фильтрации
                 var edgeCells = getSelectionEdgeCells();
-                if (edgeCells.startCell === edgeCells.endCell) {
+                if (edgeCells.startCell === null || edgeCells.endCell === null) {
+                    //не удалось определить одну или обе границы-ячейки выбранного диапазона
+                    //столбцов (такое возможно при наличии вертикально объединённых ячеек в
+                    //строке, содержащей фильтры, это нормальная ситуация, когда такие строки
+                    //закреплены)
+                    tabletoolsMenuInjector.injectTablecolumnSubmenuItem("enableFilter", CKEDITOR.TRISTATE_DISABLED);
+                }
+                else if (edgeCells.startCell === edgeCells.endCell) {
                     //выбран один столбец
                     var cell = edgeCells.startCell;
                     if (StickyFilter.colCanFilter(cell)) {

@@ -280,33 +280,31 @@ window.StickyFilter = (function () {
             document.querySelector("head").insertAdjacentElement("beforeEnd", styleElement);
         }
 
-        //определяет индексы столбцов таблицы, к которым относятся указанные ячейки,
-        //и добавляет этим ячейкам свойство, содержащее этот индекс
-        function calcColIndexes(table, cells) {
-            var tableClone = table.cloneNode(true);
-            var filterCellClones = [];
-            for (var i = 0; i < cells.length; i++) {
-                var filterCell = cells[i];
-                filterCellClones.push(tableClone.rows[filterCell.parentElement.rowIndex].cells[filterCell.cellIndex]);
-            }
-            var rows = tableClone.rows;
+        //разбивает в таблице все объединённые ячейки, добавленным ячейкам добавляется
+        //свойство isPhantom, равное true
+        function atomizeTable(table) {
+            var rows = table.rows;
             for (var j = 0; j < rows.length; j++) {
-                var row = tableClone.rows[j];
+                var row = table.rows[j];
+                //обработка вертикальных объединений
                 for (var k = 0; k < row.cells.length; k++) {
                     var cell = row.cells[k];
-                    var cellSpan = cell.colSpan;
-                    cell.colSpan = 1;
+                    var cellSpan = cell.colSpan; //значение colSpan пока совпадает с ним же ячейки исходной таблицы
+                    cell.colSpan = 1; //отныне ячейка таблицы-клона занимает одну строку и будет клонирована нужное число раз
                     for (var l = 1; l < cellSpan; l++) {
                         var cellClone = cell.cloneNode(true);
+                        cellClone.isPhantom = true;
                         row.cells[k + l - 1].insertAdjacentElement("afterEnd", cellClone);
                     }
                 }
+                //обработка горизонтальных объединений
                 for (k = 0; k < row.cells.length; k++) {
                     var cell = row.cells[k];
-                    var rowSpan = cell.rowSpan;
-                    cell.rowSpan = 1;
+                    var rowSpan = cell.rowSpan; //значение rowSpan пока совпадает с ним же ячейки исходной таблицы
+                    cell.rowSpan = 1; //отныне ячейка таблицы-клона занимает один столбец и будет клонирована нужное число раз
                     for (var m = 1; m < rowSpan; m++) {
                         var cellClone = cell.cloneNode(true);
+                        cellClone.isPhantom = true;
                         if (k == 0) {
                             rows[j + m].insertAdjacentElement("afterBegin", cellClone);
                         }
@@ -316,6 +314,18 @@ window.StickyFilter = (function () {
                     }
                 }
             }
+        }
+
+        //определяет индексы столбцов таблицы, к которым относятся указанные ячейки,
+        //и добавляет этим ячейкам свойство, содержащее этот индекс
+        function calcColIndexes(table, cells) {
+            var tableClone = table.cloneNode(true);
+            var filterCellClones = []; //массив ссылок на клоны запрошенных ячеек
+            for (var i = 0; i < cells.length; i++) {
+                var filterCell = cells[i];
+                filterCellClones.push(tableClone.rows[filterCell.parentElement.rowIndex].cells[filterCell.cellIndex]);
+            }
+            atomizeTable(tableClone);
             for (i = 0; i < cells.length; i++) {
                 cells[i].colIndex = filterCellClones[i].cellIndex;
             }
@@ -547,23 +557,24 @@ window.StickyFilter = (function () {
 
             /**
              * Находит в указанной строке ячейку, соответствующую по индексу столбца
-             * указанной ячейке.
+             * указанной ячейке, возвращает null при неудаче.
              */
             function findCounterpart(row, originalCell) {
-                //корректно работает для строк, не содержащих вертикально объединённых ячеек,
-                //однако при выяснении возможности включения фильтров можно применять и при наличии
-                //вертикально объединённых ячеек, поскольку последующие проверки нивелируют
-                //возможные некорректности
                 var table = closestAncestor(row, "table");
-                calcColIndexes(table, [originalCell]);
-                var counterpart = getCellByColIndex(row, originalCell.colIndex);
-                if (!counterpart){
-                    //такая ситуация возможна как раз при наличии вертикально объединённых ячеек,
-                    //и чтобы дальнейший код выяснении возможности включения фильтров не ломался,
-                    //следует передать на выход хоть что-то
-                    counterpart = row.cells[row.cells.length - 1];
+                var tableClone = table.cloneNode(true);
+                for (var i = 0; i < table.rows.length; i++) {
+                    var _row = table.rows[i];
+                    for (var j = 0; j < _row.cells.length; j++) {
+                        var cell = _row.cells[j];
+                        var cellClone = tableClone.rows[cell.parentElement.rowIndex].cells[cell.cellIndex];
+                        cellClone.original = cell;
+                    }
                 }
-                return counterpart;
+                //ссылка на клон запрошенной ячейки
+                var originalCellClone = tableClone.rows[originalCell.parentElement.rowIndex].cells[originalCell.cellIndex];
+                atomizeTable(tableClone);
+                var counterpartClone = tableClone.rows[row.rowIndex].cells[originalCellClone.cellIndex];
+                return counterpartClone.isPhantom ? null : counterpartClone.original;
             }
 
             /** Проверяет, доступно ли добавление фильтра в указанную ячейку. */
