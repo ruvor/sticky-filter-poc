@@ -57,6 +57,13 @@ window.StickyFilter = (function () {
 
     // private methods
 
+        //обеспечивает успех только при расположении ячеек в одной строке
+        function ensureCellsInOneRow(cell0, cell1) {
+            if (cell0.parentElement != cell1.parentElement) {
+                throw new Error("The cells specified do not reside in one row");
+            }
+        }
+
         //обрабатывает ввод в фильтрах таблиц
         function onTableFilterInput(e) {
             var peerInput = findPeerInput(e.target);
@@ -102,6 +109,9 @@ window.StickyFilter = (function () {
             var filterCells = filterRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
             for (var i = 0; i < filterCells.length; i++) {
                 var filterCell = filterCells[i];
+                if (!filterCell.hasOwnProperty("colIndex")) {
+                    throw new Error("Cell doesn't have a 'colIndex' property. Consider calling 'calcColIndexes' for it first.")
+                }
                 var filterInput = filterCell.querySelector("input[type=text]");
                 if (filterInput && filterInput.value) {
                     filterValues[filterCell.colIndex] = filterInput.value.toLowerCase();
@@ -340,12 +350,9 @@ window.StickyFilter = (function () {
         //вызовы функции действия вернули true; прекращает применение действия к ячейкам,
         //если функция действия вернёт false, сама функция при этом также вернёт false
         function applyForCellsInCols(startCell, endCell, action) {
-            var row = startCell.parentElement;
-            if (row != endCell.parentElement) {
-                throw new Error("The cells specified do not reside in one row");
-            }
+            ensureCellsInOneRow(startCell, endCell);
             if (typeof(action) != "function") return false;
-            var cells = row.cells;
+            var cells = startCell.parentElement.cells;
             for (var i = startCell.cellIndex; i <= endCell.cellIndex; i++) {
                 var cell = cells[i];
                 if (action(cell) === false) return false;
@@ -558,22 +565,29 @@ window.StickyFilter = (function () {
                 return counterpart;
             }
 
-            /** Проверяет, доступно ли добавление фильтра в указанную ячейку указанной строки. */
+            /** Проверяет, доступно ли добавление фильтра в указанную ячейку. */
             function colCanFilter(cell) {
                 return colsAllCanFilter(cell, cell);
             }
 
             /**
-             * Проверяет, доступно ли добавление фильтров в указанные ячейки указанной строки.
+             * Проверяет, доступно ли добавление фильтров в указанные ячейки.
              * Ячейки должны входить в одну строку.
             */
             function colsAllCanFilter(startCell, endCell) {
+                ensureCellsInOneRow(startCell, endCell);
                 //столбцы разрешено фильтровать, если разрешена фильтрация таблицы по признаку
                 //исключительно горизонтальных объединений в незакреплённых строках...
                 var table = closestAncestor(startCell, "table");
                 if (!tableCanFilter(table)) return false;
                 //...и если все ячейки незакреплённых строк и строки фильтра (которая может быть закреплена),
                 //входящие в объединения (горизонтальные, естественно), не относятся к проверяемым столбцам
+                //
+                //перед вызовом checkRowFilterability нужно проиндексировать столбцы, чтобы получить
+                //индексы столбцов, соответствующих ячейкам; используется такая сложная функция, как
+                //calcColIndexes, потому что фильтр может включаться в закрепленных строках, а тогда
+                //среди ячеек нужной строки вполне могут оказаться объединённые по вертикали и определить
+                //индексы столбцов без проверки почти всей таблицы затруднительно
                 calcColIndexes(table, [startCell, endCell]);
                 var filterRow = startCell.parentElement;
                 if (!checkRowFilterability(filterRow, startCell.colIndex, endCell.colIndex)) return false;
