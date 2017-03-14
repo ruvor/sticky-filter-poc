@@ -1,4 +1,3 @@
-//TODO: добавить JSDocов
 CKEDITOR.plugins.add( 'tablestickyfilter', {
     requires: 'tabletools,dialog,contextmenu',
     init: function( editor ) {
