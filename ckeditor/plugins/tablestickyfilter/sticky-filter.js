@@ -248,7 +248,7 @@ window.StickyFilter = (function () {
             var oldClasses = element.className;
             if (!hasClass(element, cssClass)) return;
             var newClasses = oldClasses;
-            newClasses = oldClasses.replace(new RegExp("\\s?" + cssClass + "\\b"), "");
+            newClasses = oldClasses.replace(new RegExp("\\b\\s?" + cssClass + "\\b", "g"), "");
             if (/^\s*$/.test(newClasses)) element.removeAttribute("class");
             else element.className = newClasses;
         }
