@@ -17,6 +17,7 @@ window.StickyFilter = (function () {
     // /const
 
     var stickyTablesCache;
+    var ceiling; //отступ в пикселях от верхней границы окна для закрепленных строк
     var isFiltering = false;
     var isSticky = false;
 
@@ -150,7 +151,7 @@ window.StickyFilter = (function () {
                 var table = stickyTablesCache[i];
                 var tableRect = table.getBoundingClientRect();
                 var peer = table.peer;
-                if (tableRect.top > 0 || tableRect.bottom <= 0) {
+                if (tableRect.top > ceiling || tableRect.bottom <= ceiling) {
                     peer.style.display = "none";
                     continue;
                 }
@@ -168,7 +169,7 @@ window.StickyFilter = (function () {
                 peer.style.visibility = "visible";
 
                 var stickyRows = table.querySelectorAll("tr." + RS_CLASS + ", tr." + RF_CLASS);
-                var acc = 0;
+                var acc = ceiling;
                 for (var k = 0; k < stickyRows.length; k++) {
                     var stickyRow = stickyRows[k];
                     var rowRect = stickyRow.getBoundingClientRect();
@@ -177,12 +178,12 @@ window.StickyFilter = (function () {
                         acc += peerRosHeights[k];
                     }
                 }
-                var diff = tableRect.bottom - peer.offsetHeight;
+                var diff = tableRect.bottom - ceiling - peer.offsetHeight;
                 if (diff < 0) {
-                    peer.style.top = diff + "px";
+                    peer.style.top = ceiling + diff + "px";
                 }
                 else {
-                    peer.style.top = 0;
+                    peer.style.top = ceiling + "px";
                 }
             }
         }
@@ -488,10 +489,16 @@ window.StickyFilter = (function () {
             }
 
             /** Включает закрепление строк в таблицах на странице. */
-            function enableTableSticking() {
+            function enableTableSticking(gap) {
                 if (isSticky) return;
                 var wrapper = document.createElement("div");
                 wrapper.className = WRAPPER_CLASS;
+                if (gap === undefined) {
+                    ceiling = 0;
+                }
+                else {
+                    ceiling = gap;
+                }
                 stickyTablesCache = [];
                 var allTables = document.querySelectorAll("table");
                 for (var i = 0; i < allTables.length; i++) {
