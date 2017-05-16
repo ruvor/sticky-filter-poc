@@ -515,6 +515,7 @@ window.StickyFilter = (function () {
                 wrapper.addEventListener("input", onStickyTableFilterInput);
                 document.body.appendChild(wrapper);
                 isSticky = true;
+                onWindowScroll();
             }
 
             /** Выключает закрепление строк в таблицах на странице. */
