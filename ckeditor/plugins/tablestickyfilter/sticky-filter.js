@@ -38,7 +38,7 @@ window.StickyFilter = (function () {
             }
             else {
                 while (element) {
-                    if (elementMatches(element, css)) return element;
+                    if (elementMatches(element, selector)) return element;
                     else element = element.parentElement;
                 }
                 return null;
