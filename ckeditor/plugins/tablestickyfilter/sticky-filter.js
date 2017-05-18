@@ -191,21 +191,53 @@ window.StickyFilter = (function () {
         //преобразовывает ширины столбцов таблицы в процентные значения
         function percentizeTable(table) {
             if (hasClass(table, TP_CLASS)) return;
-            var firstRow = table.rows[0];
-            var rowWidth = firstRow.offsetWidth;
-            var firstRowCells = firstRow.children;
-            var cellWidths = [];
-            for (var j = 0; j < firstRowCells.length; j++) {
-                var cell = firstRowCells[j];
-                cellWidths[j] = cell.offsetWidth;
+            var tableWidth = table.rows[0].offsetWidth; //ширина таблицы определяется по первой строке
+            //определение текущих ширин столбцов
+            var colQty = countTableCols(table);
+            var colsCalculated = 0;
+            var colWidths = []; //массив ширин столбцов
+            for (var i = 0; i < table.rows.length; i++) {
+                var row = table.rows[i];
+                for (var j = 0, colNum = 0; j < row.cells.length; j++) {
+                    if (colWidths[colNum] !== undefined) continue;
+                    var cell = row.cells[j];
+                    if (cell.colSpan > 1) { 
+                        colNum += cell.colSpan;
+                        continue;
+                    }
+                    colWidths[colNum] = cell.offsetWidth;
+                    colsCalculated++;
+                    if (colsCalculated == colQty) break;
+                    colNum += cell.colSpan;
+                }
+                if (colsCalculated == colQty) break;
             }
-            var colgroup = table.querySelector("colgroup");
-            if (colgroup) removeElement(colgroup);
-            colgroup = document.createElement("colgroup");
-            for (j = 0; j < firstRowCells.length; j++) {
-                var cell = firstRowCells[j];
+            if (colsCalculated != colQty) {
+                //в таблице есть столбцы, для которых не удалось вычислить ширину, потому что
+                //все входящие в них ячейки содержат объединения по горизонтали в этом случае
+                //для простоты им поровну распределяется пространство, оставшееся от вычисленных
+                //солбцов
+                var calculatedColsWidth = 0; //общая ширина вычисленных столбцов
+                for (j = 0; j < colQty; j++) {
+                    var colWidth = colWidths[j];
+                    if (colWidth !== undefined) calculatedColsWidth += colWidth;
+                }
+                var uncalculatedColWidth = (tableWidth - calculatedColsWidth) / (colQty - colsCalculated);
+                for (j = 0; j < colQty; j++) {
+                    if (colWidths[j] === undefined) colWidths[j] = uncalculatedColWidth;
+                }
+            }
+            //текущие ширине столбцов определены
+            //удаление имеющихся элементов colgroup
+            var colgroups = table.querySelectorAll("colgroup");
+            for (var j = 0; j < colgroups.length; j++) {
+                removeElement(colgroups[j]);
+            }
+            //создание новой группы столбцов с заданием процентных ширин
+            var colgroup = document.createElement("colgroup");
+            for (j = 0; j < colQty; j++) {
                 var col = document.createElement("col");
-                col.style.width = (cellWidths[j] / rowWidth * 100) + "%";
+                col.style.width = (colWidths[j] / tableWidth * 100) + "%";
                 colgroup.appendChild(col);
             }
             table.insertBefore(colgroup, table.firstChild);
