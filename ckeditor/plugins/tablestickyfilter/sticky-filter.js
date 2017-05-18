@@ -216,11 +216,11 @@ window.StickyFilter = (function () {
         //подсчитывает столбцы строки
         function countRowCols(row) {
             var cells = row.cells;
-            var colsNum = 0;
+            var colsQty = 0;
             for (var i = 0; i < cells.length; i++) {
-                colsNum += cells[i].colSpan;
+                colsQty += cells[i].colSpan;
             }
-            return colsNum;
+            return colsQty;
         }
 
         //подсчитывает столбцы таблицы
@@ -684,9 +684,9 @@ window.StickyFilter = (function () {
              */
             function rowsAllCanStick(startRow, endRow) {
                 var table = closestAncestor(startRow, "table");
-                var colsNum = countTableCols(table);
-                var firstRangeRowColsNum = countRowCols(startRow);
-                if (firstRangeRowColsNum != colsNum) {
+                var colsQty = countTableCols(table);
+                var firstRangeRowColsQty = countRowCols(startRow);
+                if (firstRangeRowColsQty != colsQty) {
                     //если количества столбцов, вычисленные по первой строке таблицы и по первой
                     //строке диапазона, не совпадают, значит в первой строке диапазона есть 
                     //объединённые ячейки из более верхних строк, такие строки закреплять нельзя
@@ -695,7 +695,7 @@ window.StickyFilter = (function () {
                 var rowsRangeHeight = endRow.rowIndex - startRow.rowIndex + 1; //высота запрошенного диапазона строк
                 var maxRowSpanDepth = 0;
                 var rowSpanDepthAcc;
-                var rangeRowNum = 0;
+                var rangeRowQty = 0;
                 applyForRows(startRow, endRow, function (row) {
                     rowSpanDepthAcc = 0;
                     var cells = row.cells;
@@ -703,9 +703,9 @@ window.StickyFilter = (function () {
                         var cell = cells[i];
                         if (cell.rowSpan > rowSpanDepthAcc) rowSpanDepthAcc = cell.rowSpan;
                     }
-                    var rowSpanDepth = rowSpanDepthAcc + rangeRowNum; //глубина объединённости ячеек по состоянию на текущую строку
+                    var rowSpanDepth = rowSpanDepthAcc + rangeRowQty; //глубина объединённости ячеек по состоянию на текущую строку
                     if (rowSpanDepth > maxRowSpanDepth) maxRowSpanDepth = rowSpanDepth;
-                    rangeRowNum++;
+                    rangeRowQty++;
                 });
                 //вычислено maxRowSpanDepth - максимальная глубина объединенности ячеек в диапазоне,
                 //если она превышает высоту диапазона, такие строки закреплять нельзя
