@@ -284,32 +284,32 @@ window.StickyFilter = (function () {
         //свойство isPhantom, равное true
         function atomizeTable(table) {
             var rows = table.rows;
-            for (var j = 0; j < rows.length; j++) {
-                var row = table.rows[j];
+            for (var i = 0; i < rows.length; i++) {
+                var row = table.rows[i];
                 //обработка вертикальных объединений
-                for (var k = 0; k < row.cells.length; k++) {
-                    var cell = row.cells[k];
+                for (var j = 0; j < row.cells.length; j++) {
+                    var cell = row.cells[j];
                     var cellSpan = cell.colSpan; //значение colSpan пока совпадает с ним же ячейки исходной таблицы
                     cell.colSpan = 1; //отныне ячейка таблицы-клона занимает одну строку и будет клонирована нужное число раз
                     for (var l = 1; l < cellSpan; l++) {
                         var cellClone = cell.cloneNode(true);
                         cellClone.isPhantom = true;
-                        row.cells[k + l - 1].insertAdjacentElement("afterEnd", cellClone);
+                        row.cells[j + l - 1].insertAdjacentElement("afterEnd", cellClone);
                     }
                 }
                 //обработка горизонтальных объединений
-                for (k = 0; k < row.cells.length; k++) {
-                    var cell = row.cells[k];
+                for (j = 0; j < row.cells.length; j++) {
+                    var cell = row.cells[j];
                     var rowSpan = cell.rowSpan; //значение rowSpan пока совпадает с ним же ячейки исходной таблицы
                     cell.rowSpan = 1; //отныне ячейка таблицы-клона занимает один столбец и будет клонирована нужное число раз
-                    for (var m = 1; m < rowSpan; m++) {
+                    for (var k = 1; k < rowSpan; k++) {
                         var cellClone = cell.cloneNode(true);
                         cellClone.isPhantom = true;
-                        if (k == 0) {
-                            rows[j + m].insertAdjacentElement("afterBegin", cellClone);
+                        if (j == 0) {
+                            rows[i + k].insertAdjacentElement("afterBegin", cellClone);
                         }
                         else {
-                            rows[j + m].cells[k - 1].insertAdjacentElement("afterEnd", cellClone);
+                            rows[i + k].cells[j - 1].insertAdjacentElement("afterEnd", cellClone);
                         }
                     }
                 }
