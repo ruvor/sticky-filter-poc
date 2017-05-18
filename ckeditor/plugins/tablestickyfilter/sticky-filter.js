@@ -197,7 +197,6 @@ window.StickyFilter = (function () {
             var cellWidths = [];
             for (var j = 0; j < firstRowCells.length; j++) {
                 var cell = firstRowCells[j];
-                cell.style.boxSizing = "border-box";
                 cellWidths[j] = cell.offsetWidth;
             }
             var colgroup = table.querySelector("colgroup");
