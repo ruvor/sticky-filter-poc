@@ -3,7 +3,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
     init: function( editor ) {
         var scriptElement = document.createElement("script");
         scriptElement.src = this.path + "sticky-filter.js";
-        document.querySelector("head").insertAdjacentElement("beforeEnd", scriptElement);
+        document.querySelector("head").appendChild(scriptElement);
 
         /** Возвращает краевые ячейки (нативные объекты HTMLElement), соответствующие столбцам текущего выделения. */
         function getSelectionEdgeCells() {
