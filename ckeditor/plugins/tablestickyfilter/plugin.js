@@ -197,7 +197,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
             tabletoolsMenuInjector.init();
 
             editor.contextMenu.addListener( function( element ) {
-                if (!StickyFilter) return; //на случай, если объект ещё не загружен
+                if (!window.StickyFilter) return; //на случай, если объект ещё не загружен
                 if (!element.getAscendant( { th: 1, td: 1 }, true )) return; //если меню вызывается не на ячейке
 
                 tabletoolsMenuInjector.clear();
@@ -336,6 +336,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
         }
 
         editor.on("getData", function (evt, editor) {
+            if (!window.StickyFilter) return; //на случай, если объект ещё не загружен
             var tempDiv = document.createElement("div");
             tempDiv.innerHTML = evt.data.dataValue;
             var tables = tempDiv.querySelectorAll("table");
