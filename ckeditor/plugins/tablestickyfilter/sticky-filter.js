@@ -410,7 +410,11 @@ window.StickyFilter = (function () {
         //сама функция при этом также вернёт false
         function applyForRows(startRow, endRow, action) {
             if (typeof(action) != "function") return false;
-            var rows = startRow.parentElement.rows;
+            var tableElement = startRow.parentElement;
+            if (tableElement.tagName === "TBODY") {
+                tableElement = tableElement.parentElement;
+            }
+            var rows = tableElement.rows;
             for (var i = startRow.rowIndex; i <= endRow.rowIndex; i++) {
                 var row = rows[i];
                 if (action(row) === false) return false;

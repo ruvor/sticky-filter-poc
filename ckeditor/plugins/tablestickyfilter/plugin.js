@@ -56,7 +56,7 @@ CKEDITOR.plugins.add('tablestickyfilter', {
             }
             return {
                 startRow: startRow.$,
-                endRow: endRow.$.parentElement.rows[endRow.$.rowIndex + maxRowSpan - 1]
+                endRow: endRow.getAscendant("table").$.rows[endRow.$.rowIndex + maxRowSpan - 1]
             };
         }
 

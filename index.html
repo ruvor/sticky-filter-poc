@@ -20,6 +20,9 @@
         td, th {
             border: 1px solid gray;
         }
+        .table-sticky caption {
+            background: #eeffee;
+        }
         .table-filter .row-filter td, .table-filter .row-filter th {
             background: #f0eeff;
         }
@@ -48,41 +51,45 @@
         Но как должны себя вести строки при постепенном уплывании таблицы за экран? Сначала закрепляется фильтр, затем, когда докручиваем до первой закреплённой строки, она прыгает и занимает место над фильтром? А потом, когда докручиваем до второй закреплённой строки, она также поступает?
     </p>
     <table>
-        <tr>
-            <th style="vertical-align: top;">Нумер</th>
-            <th class="column-filter asd qwe" style="vertical-align: top;">Название</th>
-            <th class="column-filter" style="vertical-align: top;">Продолжительность протяжённости</th>
-        </tr>
-        <tr>
-            <td>1</td>
-            <td>2</td>
-            <td>3</td>
-        </tr>
-        <tr>
-            <td>2</td>
-            <td>Сложное название</td>
-            <td>12454.34534</td>
-        </tr>
-        <tr class="row-sticky">
-            <td>3</td>
-            <td>Простое название</td>
-            <td>23452345.34</td>
-        </tr>
-        <tr>
-            <td>63</td>
-            <td>Название совсем другое</td>
-            <td>Не более 11 часов</td>
-        </tr>
-        <tr>
-            <td>1000</td>
-            <td>Третье начало</td>
-            <td>4 дня 7 часов</td>
-        </tr>
-        <tr class="row-sticky">
-            <td>1001</td>
-            <td>Ноктюрн с трубами</td>
-            <td>39845739485</td>
-        </tr>
+        <thead>
+            <tr>
+                <th style="vertical-align: top;">Нумер</th>
+                <th class="column-filter asd qwe" style="vertical-align: top;">Название</th>
+                <th class="column-filter" style="vertical-align: top;">Продолжительность протяжённости</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Сложное название</td>
+                <td>12454.34534</td>
+            </tr>
+            <tr class="row-sticky">
+                <td>3</td>
+                <td>Простое название</td>
+                <td>23452345.34</td>
+            </tr>
+            <tr>
+                <td>63</td>
+                <td>Название совсем другое</td>
+                <td>Не более 11 часов</td>
+            </tr>
+            <tr>
+                <td>1000</td>
+                <td>Третье начало</td>
+                <td>4 дня 7 часов</td>
+            </tr>
+            <tr class="row-sticky">
+                <td>1001</td>
+                <td>Ноктюрн с трубами</td>
+                <td>39845739485</td>
+            </tr>
+        </tbody>
         <caption>Заголовище</caption>
     </table>
     <p><a href="edit.html">Редактировать</a></p>
