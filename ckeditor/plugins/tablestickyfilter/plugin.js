@@ -1,6 +1,6 @@
-CKEDITOR.plugins.add( 'tablestickyfilter', {
+CKEDITOR.plugins.add('tablestickyfilter', {
     requires: 'tabletools,dialog,contextmenu',
-    init: function( editor ) {
+    init: function (editor) {
         var scriptElement = document.createElement("script");
         scriptElement.src = this.path + "sticky-filter.js";
         document.querySelector("head").appendChild(scriptElement);
@@ -14,16 +14,16 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
             //нескольких строк, принимается, что была выбрана одна ячейка (начальная ячейка диапазона)
             var selection = editor.getSelection();
             var range = selection.getRanges()[0];
-            var startCell = range.startContainer.getAscendant({ th: 1, td: 1 }, true);
+            var startCell = range.startContainer.getAscendant({th: 1, td: 1}, true);
             var startCellRow = startCell.getParent();
-            var endCell = range.endContainer.getAscendant({ th: 1, td: 1 }, true);
+            var endCell = range.endContainer.getAscendant({th: 1, td: 1}, true);
             var endCellRow = endCell.getParent();
             if (!startCellRow.equals(endCellRow)) {
                 //выбраны несколько строк
                 endCell = startCell;
             }
             var startCellNode, endCellNode; //переменные для нативных объектов ячеек
-            var table = startCellRow.getAscendant({ table: 1 }, true);
+            var table = startCellRow.getAscendant({table: 1}, true);
             var filterRow = StickyFilter.getFilterRow(table.$);
             if (filterRow && filterRow !== startCellRow.$) {
                 //в таблице уже есть фильтровальные ячейки, и они располагаются не в текущей строке,
@@ -61,94 +61,94 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
         }
 
         // команды
-            editor.addCommand( 'enableFilter', {
-                exec: function( editor ) {
+            editor.addCommand('enableFilter', {
+                exec: function (editor) {
                     var edgeCells = getSelectionEdgeCells();
                     StickyFilter.enableFilterForCol(edgeCells.startCell);
                 }
             });
-            editor.addCommand( 'enableFilters', {
-                exec: function( editor ) {
+            editor.addCommand('enableFilters', {
+                exec: function (editor) {
                     var edgeCells = getSelectionEdgeCells();
                     StickyFilter.enableFiltersForCols(edgeCells.startCell, edgeCells.endCell);
                 }
             });
-            editor.addCommand( 'disableFilter', {
-                exec: function( editor ) {
+            editor.addCommand('disableFilter', {
+                exec: function (editor) {
                     var edgeCells = getSelectionEdgeCells();
                     StickyFilter.disableFilterForCol(edgeCells.startCell);
                 }
             });
-            editor.addCommand( 'disableFilters', {
-                exec: function( editor ) {
+            editor.addCommand('disableFilters', {
+                exec: function (editor) {
                     var edgeCells = getSelectionEdgeCells();
                     StickyFilter.disableFiltersForCols(edgeCells.startCell, edgeCells.endCell);
                 }
             });
-            editor.addCommand( 'stickRow', {
-                exec: function( editor ) {
+            editor.addCommand('stickRow', {
+                exec: function (editor) {
                     var edgeRows = getSelectionEdgeRows();
                     StickyFilter.stickRow(edgeRows.startRow);
                 }
             });
-            editor.addCommand( 'stickRows', {
-                exec: function( editor ) {
+            editor.addCommand('stickRows', {
+                exec: function (editor) {
                     var edgeRows = getSelectionEdgeRows();
                     StickyFilter.stickRows(edgeRows.startRow, edgeRows.endRow);
                 }
             });
-            editor.addCommand( 'unstickRow', {
-                exec: function( editor ) {
+            editor.addCommand('unstickRow', {
+                exec: function (editor) {
                     var edgeRows = getSelectionEdgeRows();
                     StickyFilter.unstickRow(edgeRows.startRow);
                 }
             });
-            editor.addCommand( 'unstickRows', {
-                exec: function( editor ) {
+            editor.addCommand('unstickRows', {
+                exec: function (editor) {
                     var edgeRows = getSelectionEdgeRows();
                     StickyFilter.unstickRows(edgeRows.startRow, edgeRows.endRow);
                 }
             });
         // /команды
 
-        if ( editor.contextMenu ) {
+        if (editor.contextMenu) {
             // пункты меню
-                editor.addMenuItem( 'enableFilter', {
+                editor.addMenuItem('enableFilter', {
                     label: 'Включить фильтр',
                     command: 'enableFilter',
                     group: 'tablecolumn'
                 });
-                editor.addMenuItem( 'enableFilters', {
+                editor.addMenuItem('enableFilters', {
                     label: 'Включить фильтры',
                     command: 'enableFilters',
                     group: 'tablecolumn'
                 });
-                editor.addMenuItem( 'disableFilter', {
+                editor.addMenuItem('disableFilter', {
                     label: 'Выключить фильтр',
                     command: 'disableFilter',
                     group: 'tablecolumn'
                 });
-                editor.addMenuItem( 'disableFilters', {
+                editor.addMenuItem('disableFilters', {
                     label: 'Выключить фильтры',
                     command: 'disableFilters',
                     group: 'tablecolumn'
                 });
-                editor.addMenuItem( 'stickRow', {
+                editor.addMenuItem('stickRow', {
                     label: 'Закрепить строку',
                     command: 'stickRow',
                     group: 'tablerow'
                 });
-                editor.addMenuItem( 'stickRows', {
+                editor.addMenuItem('stickRows', {
                     label: 'Закрепить строки',
                     command: 'stickRows',
                     group: 'tablerow'
                 });
-                editor.addMenuItem( 'unstickRow', {
+                editor.addMenuItem('unstickRow', {
                     label: 'Открепить строку',
                     command: 'unstickRow',
                     group: 'tablerow'
                 });
-                editor.addMenuItem( 'unstickRows', {
+                editor.addMenuItem('unstickRows', {
                     label: 'Открепить строки',
                     command: 'unstickRows',
                     group: 'tablerow'
@@ -196,9 +196,9 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
             };
             tabletoolsMenuInjector.init();
 
-            editor.contextMenu.addListener( function( element ) {
+            editor.contextMenu.addListener(function (element) {
                 if (!window.StickyFilter) return; //на случай, если объект ещё не загружен
-                if (!element.getAscendant( { th: 1, td: 1 }, true )) return; //если меню вызывается не на ячейке
+                if (!element.getAscendant({th: 1, td: 1}, true)) return; //если меню вызывается не на ячейке
 
                 tabletoolsMenuInjector.clear();
 
@@ -356,7 +356,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
             allowedContent: "tr th td(*)"
         });
     },
-    onLoad: function() {
+    onLoad: function () {
         //стили оформления закреплённых строк и фильтровальных ячеек при редактировании контента
         CKEDITOR.addCss(" \n\
             tr.row-sticky td, tr.row-sticky th { \n\

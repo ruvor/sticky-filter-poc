@@ -201,7 +201,7 @@ window.StickyFilter = (function () {
                 for (var j = 0, colNum = 0; j < row.cells.length; j++) {
                     if (colWidths[colNum] !== undefined) continue;
                     var cell = row.cells[j];
-                    if (cell.colSpan > 1) { 
+                    if (cell.colSpan > 1) {
                         colNum += cell.colSpan;
                         continue;
                     }
@@ -720,7 +720,7 @@ window.StickyFilter = (function () {
                 var firstRangeRowColsQty = countRowCols(startRow);
                 if (firstRangeRowColsQty != colsQty) {
                     //если количества столбцов, вычисленные по первой строке таблицы и по первой
-                    //строке диапазона, не совпадают, значит в первой строке диапазона есть 
+                    //строке диапазона, не совпадают, значит в первой строке диапазона есть
                     //объединённые ячейки из более верхних строк, такие строки закреплять нельзя
                     return false;
                 }
