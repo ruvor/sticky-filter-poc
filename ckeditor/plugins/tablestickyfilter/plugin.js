@@ -335,7 +335,7 @@ CKEDITOR.plugins.add( 'tablestickyfilter', {
             });
         }
 
-        editor.on("getData", function (evt, editor) {
+        editor.on("getData", function (evt) {
             if (!window.StickyFilter) return; //на случай, если объект ещё не загружен
             var tempDiv = document.createElement("div");
             tempDiv.innerHTML = evt.data.dataValue;
