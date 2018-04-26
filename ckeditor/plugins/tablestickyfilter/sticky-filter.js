@@ -159,6 +159,8 @@ window.StickyFilter = (function () {
                 peer.style.width = table.offsetWidth + "px";
                 peer.style.visibility = "hidden";
                 peer.style.display = "table";
+                var caption = table.querySelector("caption");
+                var captionHeight = caption ? caption.offsetHeight : 0;
                 var peerRows = peer.rows;
                 var peerRosHeights = [];
                 for (var j = 0; j < peerRows.length; j++) {
@@ -169,7 +171,7 @@ window.StickyFilter = (function () {
                 peer.style.visibility = "visible";
 
                 var stickyRows = table.querySelectorAll("tr." + RS_CLASS + ", tr." + RF_CLASS);
-                var acc = ceiling;
+                var acc = ceiling + captionHeight;
                 for (var k = 0; k < stickyRows.length; k++) {
                     var stickyRow = stickyRows[k];
                     var rowRect = stickyRow.getBoundingClientRect();
