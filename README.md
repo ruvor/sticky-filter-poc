@@ -12,3 +12,7 @@
 Подключение плагина к редактору см. в файле ckeditor/config.js.
 
 Делалось в рамках [INGOSDEV-762](https://emdev-limited.atlassian.net/browse/INGOSDEV-762) и [INGOSDEV-763](https://emdev-limited.atlassian.net/browse/INGOSDEV-763).
+
+31.05.2018 убрал из репозитория цкедитор. Предлагаю использовать для разработки цкедитор из репы liferay-base (хотя, там он тоже обычно является ссылкой на цкедитор в репе knowledge-base):
+
+    mklink /j ckeditor ..\liferay-base\liferay-6-ui-stuff\ROOT\html\js\editor\ckeditor45
