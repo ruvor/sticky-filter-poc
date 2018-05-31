@@ -53,7 +53,10 @@
         <p><a href=".">На главную</a></p>
         <script src="ckeditor/ckeditor.js"></script>
         <script>
-            CKEDITOR.replace("editor1");
+            CKEDITOR.replace("editor1", {
+                extraPlugins: 'tablestickyfilter',
+                height: 500,
+            });
         </script>
     </body>
 </html>
