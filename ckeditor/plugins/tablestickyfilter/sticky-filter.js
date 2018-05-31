@@ -483,7 +483,6 @@ window.StickyFilter = (function () {
                     var filterRow = getFilterRow(table)
                     //предполагается, что фильтровальные ячейки будут в одной строке таблицы
                     if (!filterRow) continue; //если в таблице нет фильтровальных ячеек
-                    percentizeTable(table);
                     var filterCells = filterRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
                     calcColIndexes(table, filterCells);
                     for (var j = 0; j < filterCells.length; j++) {
@@ -495,6 +494,7 @@ window.StickyFilter = (function () {
                     }
                     addClass(filterRow, RF_CLASS);
                     addClass(table, TF_CLASS);
+                    percentizeTable(table); //после добавления классов, для которых могут иметься стили, влияющие на ширину
                 }
                 if (isSticky) {
                     disableTableSticking();
@@ -542,8 +542,8 @@ window.StickyFilter = (function () {
                     var table = allTables[i];
                     var stickyRows = table.querySelectorAll("tr." + RS_CLASS + ", tr." + RF_CLASS);
                     if (stickyRows.length == 0) continue; //в таблице нет строк для закрепления
-                    percentizeTable(table);
                     addClass(table, TS_CLASS);
+                    percentizeTable(table); //после добавления классов, для которых могут иметься стили, влияющие на ширину
                     var peer = table.cloneNode(true);
                     peer.style.display = "none";
                     wrapper.appendChild(peer);
