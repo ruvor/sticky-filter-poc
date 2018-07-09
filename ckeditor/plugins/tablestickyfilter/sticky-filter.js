@@ -571,7 +571,7 @@ window.StickyFilter = (function () {
             wrapper.style.top = ceiling + "px";
             wrapper.appendChild(peer);
             wrapper.addEventListener("input", onStickyTableFilterInput);
-            table.insertAdjacentElement("afterend", wrapper);
+            table.insertAdjacentElement("afterEnd", wrapper);
             table.wrapper = wrapper;
             stickyTablesCache.push(table);
         }
