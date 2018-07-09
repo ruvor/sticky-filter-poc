@@ -146,7 +146,7 @@ window.StickyFilter = (function () {
     }
 
     //обрабатывает прокрутку окна браузера
-    function onWindowScroll(e) {
+    function onScroll(e) {
         for (var i = 0; i < stickyTablesCache.length; i++) {
             var table = stickyTablesCache[i];
             var tableRect = table.getBoundingClientRect();
@@ -565,7 +565,9 @@ window.StickyFilter = (function () {
             for (var j = 0; j < peerRowsToDelete.length; j++) {
                 removeElement(peerRowsToDelete[j]);
             }
-            table.widthConstrainer = findWidthConstrainer(table);
+            var widthConstrainer = findWidthConstrainer(table);
+            table.widthConstrainer = widthConstrainer;
+            widthConstrainer.addEventListener("scroll", onScroll);
             var wrapper = document.createElement("div");
             wrapper.className = WRAPPER_CLASS;
             wrapper.style.top = ceiling + "px";
@@ -575,25 +577,24 @@ window.StickyFilter = (function () {
             table.wrapper = wrapper;
             stickyTablesCache.push(table);
         }
-        window.addEventListener("scroll", onWindowScroll);
+        window.addEventListener("scroll", onScroll);
         isSticky = true;
-        onWindowScroll();
+        onScroll();
     }
 
     /** Выключает закрепление строк в таблицах на странице. */
     function disableTableSticking() {
         if (!isSticky) return;
-        window.removeEventListener("scroll", onWindowScroll);
-        var wrappers = document.querySelectorAll("." + WRAPPER_CLASS);
-        for (var j = 0; j < wrappers.length; j++) {
-            removeElement(wrappers[j]);
-        }
-        stickyTablesCache = undefined;
-        var stickyTables = document.querySelectorAll("table." + TS_CLASS);
-        for (var j = 0; j < stickyTables.length; j++) {
-            var table = stickyTables[j];
+        var table;
+        window.removeEventListener("scroll", onScroll);
+        for (var i = 0; i < stickyTablesCache.length; i++) {
+            table = stickyTablesCache[i];
+            table.widthConstrainer.removeEventListener("scroll", onScroll);
+            removeElement(table.wrapper);
+            table.wrapper = undefined;
             removeClass(table, TS_CLASS);
         }
+        stickyTablesCache = undefined;
         isSticky = false;
     }
 
