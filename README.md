@@ -9,7 +9,7 @@
 
 Ядро следует подключать на странице показа контента. Пример применения см. в файле index.html.
 
-Подключение плагина к редактору см. в файле ckeditor/config.js.
+Подключение плагина к редактору см. в файле ~~ckeditor/config.js~~ ckeditor/ckconfig.jsp (это пока тут лежал нормальный цкедитор, смотреть надо было туда, а теперь предлагается работать с лайфрейным, смотреть, соответственно, в другой файл).
 
 Делалось в рамках [INGOSDEV-762](https://emdev-limited.atlassian.net/browse/INGOSDEV-762) и [INGOSDEV-763](https://emdev-limited.atlassian.net/browse/INGOSDEV-763).
 
