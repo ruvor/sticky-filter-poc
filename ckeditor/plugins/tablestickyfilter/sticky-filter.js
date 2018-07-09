@@ -155,7 +155,10 @@ window.StickyFilter = (function () {
                 peer.style.display = "none";
                 continue;
             }
-            peer.style.left = tableRect.left + "px";
+            var constrainerRect = table.widthConstrainer.getBoundingClientRect();
+            table.wrapper.style.left = constrainerRect.left + "px";
+            table.wrapper.style.width = constrainerRect.width + "px";
+            peer.style.left = (tableRect.left - constrainerRect.left) + "px";
             peer.style.width = table.offsetWidth + "px";
             peer.style.visibility = "hidden";
             peer.style.display = "table";
@@ -298,11 +301,10 @@ window.StickyFilter = (function () {
             } \n\
             ." + WRAPPER_CLASS + " { \n\
                 position: fixed; \n\
-                left: 0; \n\
-                width: 100%; \n\
+                overflow: hidden; \n\
             } \n\
             ." + WRAPPER_CLASS + " table { \n\
-                position: absolute; \n\
+                position: relative; \n\
                 min-width: 0; \n\
                 max-width: none; \n\
             } \n\
@@ -466,6 +468,23 @@ window.StickyFilter = (function () {
         return result;
     }
 
+    function findWidthConstrainer(table) {
+        var сonstrainer, parent, prevParent = table;
+        while (true) {
+            parent = prevParent.parentElement;
+            if (!parent) {
+                сonstrainer = prevParent;
+                break;
+            }
+            if (parent.clientWidth < table.offsetWidth) {
+                сonstrainer = parent;
+                break;
+            }
+            prevParent = parent;
+        }
+        return сonstrainer;
+    }
+
     //#endregion
 
     //#region Public methods
@@ -546,12 +565,14 @@ window.StickyFilter = (function () {
             for (var j = 0; j < peerRowsToDelete.length; j++) {
                 removeElement(peerRowsToDelete[j]);
             }
+            table.widthConstrainer = findWidthConstrainer(table);
             var wrapper = document.createElement("div");
             wrapper.className = WRAPPER_CLASS;
             wrapper.style.top = ceiling + "px";
             wrapper.appendChild(peer);
             wrapper.addEventListener("input", onStickyTableFilterInput);
             table.insertAdjacentElement("afterend", wrapper);
+            table.wrapper = wrapper;
             stickyTablesCache.push(table);
         }
         window.addEventListener("scroll", onWindowScroll);
