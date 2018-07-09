@@ -60,100 +60,100 @@ CKEDITOR.plugins.add('tablestickyfilter', {
             };
         }
 
-        // команды
-            editor.addCommand('enableFilter', {
-                exec: function (editor) {
-                    var edgeCells = getSelectionEdgeCells();
-                    StickyFilter.enableFilterForCol(edgeCells.startCell);
-                }
-            });
-            editor.addCommand('enableFilters', {
-                exec: function (editor) {
-                    var edgeCells = getSelectionEdgeCells();
-                    StickyFilter.enableFiltersForCols(edgeCells.startCell, edgeCells.endCell);
-                }
-            });
-            editor.addCommand('disableFilter', {
-                exec: function (editor) {
-                    var edgeCells = getSelectionEdgeCells();
-                    StickyFilter.disableFilterForCol(edgeCells.startCell);
-                }
-            });
-            editor.addCommand('disableFilters', {
-                exec: function (editor) {
-                    var edgeCells = getSelectionEdgeCells();
-                    StickyFilter.disableFiltersForCols(edgeCells.startCell, edgeCells.endCell);
-                }
-            });
-            editor.addCommand('stickRow', {
-                exec: function (editor) {
-                    var edgeRows = getSelectionEdgeRows();
-                    StickyFilter.stickRow(edgeRows.startRow);
-                }
-            });
-            editor.addCommand('stickRows', {
-                exec: function (editor) {
-                    var edgeRows = getSelectionEdgeRows();
-                    StickyFilter.stickRows(edgeRows.startRow, edgeRows.endRow);
-                }
-            });
-            editor.addCommand('unstickRow', {
-                exec: function (editor) {
-                    var edgeRows = getSelectionEdgeRows();
-                    StickyFilter.unstickRow(edgeRows.startRow);
-                }
-            });
-            editor.addCommand('unstickRows', {
-                exec: function (editor) {
-                    var edgeRows = getSelectionEdgeRows();
-                    StickyFilter.unstickRows(edgeRows.startRow, edgeRows.endRow);
-                }
-            });
-        // /команды
+        //#region Команды
+        editor.addCommand('enableFilter', {
+            exec: function (editor) {
+                var edgeCells = getSelectionEdgeCells();
+                StickyFilter.enableFilterForCol(edgeCells.startCell);
+            }
+        });
+        editor.addCommand('enableFilters', {
+            exec: function (editor) {
+                var edgeCells = getSelectionEdgeCells();
+                StickyFilter.enableFiltersForCols(edgeCells.startCell, edgeCells.endCell);
+            }
+        });
+        editor.addCommand('disableFilter', {
+            exec: function (editor) {
+                var edgeCells = getSelectionEdgeCells();
+                StickyFilter.disableFilterForCol(edgeCells.startCell);
+            }
+        });
+        editor.addCommand('disableFilters', {
+            exec: function (editor) {
+                var edgeCells = getSelectionEdgeCells();
+                StickyFilter.disableFiltersForCols(edgeCells.startCell, edgeCells.endCell);
+            }
+        });
+        editor.addCommand('stickRow', {
+            exec: function (editor) {
+                var edgeRows = getSelectionEdgeRows();
+                StickyFilter.stickRow(edgeRows.startRow);
+            }
+        });
+        editor.addCommand('stickRows', {
+            exec: function (editor) {
+                var edgeRows = getSelectionEdgeRows();
+                StickyFilter.stickRows(edgeRows.startRow, edgeRows.endRow);
+            }
+        });
+        editor.addCommand('unstickRow', {
+            exec: function (editor) {
+                var edgeRows = getSelectionEdgeRows();
+                StickyFilter.unstickRow(edgeRows.startRow);
+            }
+        });
+        editor.addCommand('unstickRows', {
+            exec: function (editor) {
+                var edgeRows = getSelectionEdgeRows();
+                StickyFilter.unstickRows(edgeRows.startRow, edgeRows.endRow);
+            }
+        });
+        //#endregion
 
         if (editor.contextMenu) {
-            // пункты меню
-                editor.addMenuItem('enableFilter', {
-                    label: 'Включить фильтр',
-                    command: 'enableFilter',
-                    group: 'tablecolumn'
-                });
-                editor.addMenuItem('enableFilters', {
-                    label: 'Включить фильтры',
-                    command: 'enableFilters',
-                    group: 'tablecolumn'
-                });
-                editor.addMenuItem('disableFilter', {
-                    label: 'Выключить фильтр',
-                    command: 'disableFilter',
-                    group: 'tablecolumn'
-                });
-                editor.addMenuItem('disableFilters', {
-                    label: 'Выключить фильтры',
-                    command: 'disableFilters',
-                    group: 'tablecolumn'
-                });
-                editor.addMenuItem('stickRow', {
-                    label: 'Закрепить строку',
-                    command: 'stickRow',
-                    group: 'tablerow'
-                });
-                editor.addMenuItem('stickRows', {
-                    label: 'Закрепить строки',
-                    command: 'stickRows',
-                    group: 'tablerow'
-                });
-                editor.addMenuItem('unstickRow', {
-                    label: 'Открепить строку',
-                    command: 'unstickRow',
-                    group: 'tablerow'
-                });
-                editor.addMenuItem('unstickRows', {
-                    label: 'Открепить строки',
-                    command: 'unstickRows',
-                    group: 'tablerow'
-                });
-            // /пункты меню
+            //#region Пункты меню
+            editor.addMenuItem('enableFilter', {
+                label: 'Включить фильтр',
+                command: 'enableFilter',
+                group: 'tablecolumn'
+            });
+            editor.addMenuItem('enableFilters', {
+                label: 'Включить фильтры',
+                command: 'enableFilters',
+                group: 'tablecolumn'
+            });
+            editor.addMenuItem('disableFilter', {
+                label: 'Выключить фильтр',
+                command: 'disableFilter',
+                group: 'tablecolumn'
+            });
+            editor.addMenuItem('disableFilters', {
+                label: 'Выключить фильтры',
+                command: 'disableFilters',
+                group: 'tablecolumn'
+            });
+            editor.addMenuItem('stickRow', {
+                label: 'Закрепить строку',
+                command: 'stickRow',
+                group: 'tablerow'
+            });
+            editor.addMenuItem('stickRows', {
+                label: 'Закрепить строки',
+                command: 'stickRows',
+                group: 'tablerow'
+            });
+            editor.addMenuItem('unstickRow', {
+                label: 'Открепить строку',
+                command: 'unstickRow',
+                group: 'tablerow'
+            });
+            editor.addMenuItem('unstickRows', {
+                label: 'Открепить строки',
+                command: 'unstickRows',
+                group: 'tablerow'
+            });
+            //#endregion
 
             /** Объект, обеспечивающий внедрение пунктов меню в подменю плагина tabletools. */
             var tabletoolsMenuInjector = {
