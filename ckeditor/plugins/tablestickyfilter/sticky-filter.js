@@ -146,7 +146,7 @@ window.StickyFilter = (function () {
     }
 
     //обрабатывает прокрутку окна браузера
-    function onScroll(e) {
+    function stickTables(e) {
         for (var i = 0; i < stickyTablesCache.length; i++) {
             var table = stickyTablesCache[i];
             var tableRect = table.getBoundingClientRect();
@@ -567,7 +567,7 @@ window.StickyFilter = (function () {
             }
             var widthConstrainer = findWidthConstrainer(table);
             table.widthConstrainer = widthConstrainer;
-            widthConstrainer.addEventListener("scroll", onScroll);
+            widthConstrainer.addEventListener("scroll", stickTables);
             var wrapper = document.createElement("div");
             wrapper.className = WRAPPER_CLASS;
             wrapper.style.top = ceiling + "px";
@@ -577,19 +577,21 @@ window.StickyFilter = (function () {
             table.wrapper = wrapper;
             stickyTablesCache.push(table);
         }
-        window.addEventListener("scroll", onScroll);
+        window.addEventListener("scroll", stickTables);
+        window.addEventListener("resize", stickTables);
         isSticky = true;
-        onScroll();
+        stickTables();
     }
 
     /** Выключает закрепление строк в таблицах на странице. */
     function disableTableSticking() {
         if (!isSticky) return;
         var table;
-        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("scroll", stickTables);
+        window.removeEventListener("resize", stickTables);
         for (var i = 0; i < stickyTablesCache.length; i++) {
             table = stickyTablesCache[i];
-            table.widthConstrainer.removeEventListener("scroll", onScroll);
+            table.widthConstrainer.removeEventListener("scroll", stickTables);
             removeElement(table.wrapper);
             table.wrapper = undefined;
             removeClass(table, TS_CLASS);
