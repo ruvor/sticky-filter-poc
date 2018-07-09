@@ -32,27 +32,25 @@ window.StickyFilter = (function () {
         return nativeMatchesFunc.call(element, selector);
     }
 
-    function closestAncestor(element, selector) {
-        if (Element.prototype.closest) {
-            return element.closest(selector);
-        }
-        else {
-            while (element) {
-                if (elementMatches(element, selector)) return element;
-                else element = element.parentElement;
-            }
-            return null;
-        }
-    }
+    var closestAncestor = Element.prototype.closest ?
+            function (element, selector) {
+                return element.closest(selector);
+            } :
+            function (element, selector) {
+                while (element) {
+                    if (elementMatches(element, selector)) return element;
+                    else element = element.parentElement;
+                }
+                return null;
+            };
 
-    function removeElement(element) {
-        if (Element.prototype.remove) {
-            element.remove();
-        }
-        else {
-            element.parentElement.removeChild(element);
-        }
-    }
+    var removeElement = Element.prototype.remove ?
+            function (element) {
+                element.remove();
+            } :
+            function (element) {
+                element.parentElement.removeChild(element);
+            };
 
     //#endregion
 
