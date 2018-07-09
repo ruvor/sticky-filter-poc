@@ -592,7 +592,7 @@ window.StickyFilter = (function () {
             var table = stickyTablesCache[i];
             table.widthConstrainer.removeEventListener("scroll", stickTables);
             removeElement(table.wrapper);
-            table.wrapper = undefined;
+            delete table.wrapper;
             removeClass(table, TS_CLASS);
         }
         stickyTablesCache = undefined;
