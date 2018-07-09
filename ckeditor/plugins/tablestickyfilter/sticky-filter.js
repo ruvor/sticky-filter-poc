@@ -202,7 +202,7 @@ window.StickyFilter = (function () {
     function revertDisplays() {
         for (var i in displaysChain) {
             var entry = displaysChain[i];
-            entry[0].style.display = entry[1];
+            entry[0].style.setProperty("display", entry[1], entry[2]);
         }
         displaysChain = undefined;
     }
@@ -215,8 +215,10 @@ window.StickyFilter = (function () {
             displaysChain = [];
         }
         do {
-            displaysChain.push([element, element.style.display]);
-            element.style.display = "block";
+            displaysChain.push([element,
+                    element.style.getPropertyValue("display"),
+                    element.style.getPropertyPriority("display")]);
+            element.style.setProperty("display", "block", "important");
             element = element.parentElement;
         } while (!isVisible(element));
     }
