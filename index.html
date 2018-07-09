@@ -259,7 +259,7 @@
             </tbody>
         </table>
     </div>
-    <p>Здесь покоится таблица, которая по умолчанию скрыта. Её просто так не процентизуешь.</p>
+    <p>Здесь покоится таблица, которая по умолчанию скрыта. Её просто так не процентизуешь. И даже две.</p>
     <button onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">Показать/скрыть</button>
     <div style="display: none;">
         <table>
@@ -304,6 +304,27 @@
             </tbody>
             <caption>Заголовище</caption>
         </table>
+        <p>Как насчёт ещё одной?!</p>
+        <button onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">Показать/скрыть</button>
+        <div style="display: none;">
+            <table>
+                <tr>
+                    <td>Одын</td>
+                    <td>Два</td>
+                    <td>Тры</td>
+                </tr>
+                <tr class="row-sticky">
+                    <td>2</td>
+                    <td width="350">12454.34534</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>31415926</td>
+                    <td>2</td>
+                </tr>
+            </table>
+        </div>
     </div>
 
     <div>
