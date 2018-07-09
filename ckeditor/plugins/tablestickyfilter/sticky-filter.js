@@ -586,11 +586,10 @@ window.StickyFilter = (function () {
     /** Выключает закрепление строк в таблицах на странице. */
     function disableTableSticking() {
         if (!isSticky) return;
-        var table;
         window.removeEventListener("scroll", stickTables);
         window.removeEventListener("resize", stickTables);
         for (var i = 0; i < stickyTablesCache.length; i++) {
-            table = stickyTablesCache[i];
+            var table = stickyTablesCache[i];
             table.widthConstrainer.removeEventListener("scroll", stickTables);
             removeElement(table.wrapper);
             table.wrapper = undefined;
