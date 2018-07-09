@@ -530,11 +530,9 @@ window.StickyFilter = (function () {
         if (isSticky) return;
         var wrapper = document.createElement("div");
         wrapper.className = WRAPPER_CLASS;
-        if (gap === undefined) {
+        ceiling = parseInt(gap);
+        if (isNaN(ceiling)) {
             ceiling = 0;
-        }
-        else {
-            ceiling = gap;
         }
         stickyTablesCache = [];
         var allTables = document.querySelectorAll("table");
