@@ -498,7 +498,7 @@ window.StickyFilter = (function () {
         }
         if (isSticky) {
             disableTableSticking();
-            enableTableSticking();
+            enableTableSticking(ceiling);
         }
         isFiltering = true;
     }
@@ -520,7 +520,7 @@ window.StickyFilter = (function () {
         }
         if (isSticky) {
             disableTableSticking();
-            enableTableSticking();
+            enableTableSticking(ceiling);
         }
         isFiltering = false;
     }
