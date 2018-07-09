@@ -182,10 +182,10 @@ window.StickyFilter = (function () {
             }
             var diff = tableRect.bottom - ceiling - peer.offsetHeight;
             if (diff < 0) {
-                peer.style.top = ceiling + diff + "px";
+                peer.style.top = diff + "px";
             }
             else {
-                peer.style.top = ceiling + "px";
+                peer.style.top = 0;
             }
         }
     }
@@ -298,10 +298,8 @@ window.StickyFilter = (function () {
             } \n\
             ." + WRAPPER_CLASS + " { \n\
                 position: fixed; \n\
-                top: 0; \n\
                 left: 0; \n\
                 width: 100%; \n\
-                height: 0; \n\
             } \n\
             ." + WRAPPER_CLASS + " table { \n\
                 position: absolute; \n\
@@ -528,8 +526,6 @@ window.StickyFilter = (function () {
     /** Включает закрепление строк в таблицах на странице. */
     function enableTableSticking(gap) {
         if (isSticky) return;
-        var wrapper = document.createElement("div");
-        wrapper.className = WRAPPER_CLASS;
         ceiling = parseInt(gap);
         if (isNaN(ceiling)) {
             ceiling = 0;
@@ -544,18 +540,21 @@ window.StickyFilter = (function () {
             percentizeTable(table); //после добавления классов, для которых могут иметься стили, влияющие на ширину
             var peer = table.cloneNode(true);
             peer.style.display = "none";
-            wrapper.appendChild(peer);
             table.peer = peer;
             peer.peer = table;
             var peerRowsToDelete = peer.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
             for (var j = 0; j < peerRowsToDelete.length; j++) {
                 removeElement(peerRowsToDelete[j]);
             }
+            var wrapper = document.createElement("div");
+            wrapper.className = WRAPPER_CLASS;
+            wrapper.style.top = ceiling + "px";
+            wrapper.appendChild(peer);
+            wrapper.addEventListener("input", onStickyTableFilterInput);
+            table.insertAdjacentElement("afterend", wrapper);
             stickyTablesCache.push(table);
         }
         window.addEventListener("scroll", onWindowScroll);
-        wrapper.addEventListener("input", onStickyTableFilterInput);
-        document.body.appendChild(wrapper);
         isSticky = true;
         onWindowScroll();
     }
@@ -564,11 +563,14 @@ window.StickyFilter = (function () {
     function disableTableSticking() {
         if (!isSticky) return;
         window.removeEventListener("scroll", onWindowScroll);
-        removeElement(document.querySelector("." + WRAPPER_CLASS));
+        var wrappers = document.querySelectorAll("." + WRAPPER_CLASS);
+        for (var j = 0; j < wrappers.length; j++) {
+            removeElement(wrappers[j]);
+        }
         stickyTablesCache = undefined;
         var stickyTables = document.querySelectorAll("table." + TS_CLASS);
-        for (var i = 0; i < stickyTables.length; i++) {
-            var table = stickyTables[i];
+        for (var j = 0; j < stickyTables.length; j++) {
+            var table = stickyTables[j];
             removeClass(table, TS_CLASS);
         }
         isSticky = false;
