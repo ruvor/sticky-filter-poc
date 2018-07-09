@@ -260,7 +260,7 @@
         </table>
     </div>
     <p>Здесь покоится таблица, которая по умолчанию скрыта. Её просто так не процентизуешь. И даже две.</p>
-    <button onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">Показать/скрыть</button>
+    <button class="collapse">Показать/скрыть</button>
     <div style="display: none;">
         <table>
             <thead>
@@ -305,7 +305,7 @@
             <caption>Заголовище</caption>
         </table>
         <p>Как насчёт ещё одной?!</p>
-        <button onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">Показать/скрыть</button>
+        <button class="collapse">Показать/скрыть</button>
         <div style="display: none;">
             <table>
                 <tr>
@@ -415,6 +415,17 @@
             }
             document.getElementById("filter").checked = StickyFilter.isFiltering;
         });
+
+        const collapseButtons = document.querySelectorAll(".collapse");
+        for (var i = 0; i < collapseButtons.length; i++) {
+            var collapseButton = collapseButtons[i];
+            collapseButton.addEventListener("click", function () {
+                this.nextElementSibling.style.setProperty("display",
+                        this.nextElementSibling.style.getPropertyValue("display") === 'none' ?
+                        "block" : "none", "important");
+            });
+        }
+
         StickyFilter.enableTableFiltering();
         StickyFilter.enableTableSticking(headerHeight);
     </script>

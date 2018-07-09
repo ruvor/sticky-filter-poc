@@ -202,7 +202,14 @@ window.StickyFilter = (function () {
     function revertDisplays() {
         for (var i in displaysChain) {
             var entry = displaysChain[i];
-            entry[0].style.setProperty("display", entry[1], entry[2]);
+            var element = entry[0];
+            element.style.setProperty("display", entry[1], entry[2]);
+            if (element.style.getPropertyPriority("display") !== entry[2]) {
+                //IE отказывается менять значение свойства, когда текущее значение имеет повышенный приоритет,
+                //в таком случае выставляется прежнее значение правила, но с по-прежнему повышенным приоритетом,
+                //в некоторых случаях это может вызвать не совсем корректное отображение затронутых элементов
+                element.style.setProperty("display", entry[1], "important");
+            }
         }
         displaysChain = undefined;
     }
@@ -218,6 +225,8 @@ window.StickyFilter = (function () {
             displaysChain.push([element,
                     element.style.getPropertyValue("display"),
                     element.style.getPropertyPriority("display")]);
+            //значение устанавливается с повышенным приоритетом в связи с тем, что часто контролы типа
+            //коллапсов, табов также повышают приоритет в своих правилах
             element.style.setProperty("display", "block", "important");
             element = element.parentElement;
         } while (!isVisible(element));
