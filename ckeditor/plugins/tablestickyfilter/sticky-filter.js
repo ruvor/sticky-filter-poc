@@ -52,6 +52,11 @@ window.StickyFilter = (function () {
                 element.parentElement.removeChild(element);
             };
 
+    //задействован подход jquery
+    function isVisible(element) {
+        return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+    }
+
     //#endregion
 
     //#region Private methods
@@ -188,9 +193,54 @@ window.StickyFilter = (function () {
         }
     }
 
-    //преобразовывает ширины столбцов таблицы в процентные значения
+    //хранит коллекцию элементов и изначальные значения их стилевых свойств display, используются в целях оптимизации
+    //по скорости многократных процентизаций таблиц
+    var displaysChain;
+
+    //восстанавливает стилевые свойства display элементов, затронутых при процентизации таблиц, эту функцию
+    //следует обязательно вызывать после завершения процентизации таблиц, использует переменную displaysChain
+    function revertDisplays() {
+        for (var i in displaysChain) {
+            var entry = displaysChain[i];
+            var element = entry[0];
+            element.style.setProperty("display", entry[1], entry[2]);
+            if (element.style.getPropertyPriority("display") !== entry[2]) {
+                //Эта ситуация возможна в IE, потому что IE отказывается менять значение свойства, когда текущее
+                //значение имеет повышенный приоритет (а при выполнении данной функции это всегда так, поскольку в
+                //функции glance приоритет временного стиля видимости намеренно делается повышенным). Для обхода
+                //этой проблемы производится повторная установка прежнего значение свойства, но с явным указанием
+                //повышенного приоритета. Следует оговориться, что в некоторых случаях это может вызвать не совсем
+                //корректное отображение затронутых элементов, тогда следует скорректировать стили этих элементов
+                //на уровне темы.
+                element.style.setProperty("display", entry[1], "important");
+            }
+        }
+        displaysChain = undefined;
+    }
+
+    //делает элемент видимым с учётом родительских узлов, сохраняя затронутые элементы и их свойства display
+    //в коллекции displaysChain, для простоты предполагается, что невидимые контейнеры блочного типа
+    function glance(element) {
+        if (isVisible(element)) return;
+        if (!displaysChain) {
+            displaysChain = [];
+        }
+        do {
+            displaysChain.push([element,
+                    element.style.getPropertyValue("display"),
+                    element.style.getPropertyPriority("display")]);
+            //значение устанавливается с повышенным приоритетом в связи с тем, что часто контролы типа
+            //коллапсов, табов также повышают приоритет в своих правилах
+            element.style.setProperty("display", "block", "important");
+            element = element.parentElement;
+        } while (!isVisible(element));
+    }
+
+    //преобразовывает ширины столбцов таблицы в процентные значения, после применения для группы таблиц
+    //следует вызвать функцию revertDisplays
     function percentizeTable(table) {
         if (hasClass(table, TP_CLASS)) return;
+        glance(table);
         var tableWidth = table.rows[0].offsetWidth; //ширина таблицы определяется по первой строке
         //определение текущих ширин столбцов
         var colQty = countTableCols(table);
@@ -494,6 +544,7 @@ window.StickyFilter = (function () {
             addClass(table, TF_CLASS);
             percentizeTable(table); //после добавления классов, для которых могут иметься стили, влияющие на ширину
         }
+        revertDisplays();
         if (isSticky) {
             disableTableSticking();
             enableTableSticking(ceiling);
@@ -551,6 +602,7 @@ window.StickyFilter = (function () {
             }
             stickyTablesCache.push(table);
         }
+        revertDisplays();
         window.addEventListener("scroll", onWindowScroll);
         wrapper.addEventListener("input", onStickyTableFilterInput);
         document.body.appendChild(wrapper);
