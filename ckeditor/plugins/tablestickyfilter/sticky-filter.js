@@ -534,7 +534,6 @@ window.StickyFilter = (function () {
             var filterCells = filterRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
             calcColIndexes(table, filterCells);
             for (var j = 0; j < filterCells.length; j++) {
-                var cell = filterCells[j];
                 var filterInput = document.createElement("input");
                 filterInput.setAttribute("type", "text");
                 filterInput.addEventListener("input", onTableFilterInput);
