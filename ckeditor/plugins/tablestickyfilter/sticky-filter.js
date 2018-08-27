@@ -61,6 +61,57 @@ window.StickyFilter = (function () {
 
     //#region Private methods
 
+    //возвращает строки таблицы, соответствующие селектору
+    function getTableRows(table, selector) {
+        var rows = [];
+        for (var i = 0; i < table.rows.length; i++) {
+            var row = table.rows[i];
+            if (elementMatches(row, selector)) {
+                rows.push(row);
+            }
+        }
+        return rows;
+    }
+
+    //возвращает ячейки таблицы, соответствующие селектору
+    function getTableCells(table, selector) {
+        var cells = [];
+        for (var i = 0; i < table.rows.length; i++) {
+            var row = table.rows[i];
+            for (var j = 0; j < row.cells.length; j++) {
+                var cell = row.cells[j];
+                if (elementMatches(cell, selector)) {
+                    cells.push(cell);
+                }
+            }
+        }
+        return cells;
+    }
+
+    //возвращает ячейки строки таблицы, соответствующие селектору
+    function getRowCells(row, selector) {
+        var cells = [];
+        for (var i = 0; i < row.cells.length; i++) {
+            var cell = row.cells[i];
+            if (elementMatches(cell, selector)) {
+                cells.push(cell);
+            }
+        }
+        return cells;
+    }
+
+    //возвращает элементы <colgroup> таблицы
+    function getTableColgroups(table) {
+        var colgroups = [];
+        for (var i = 0; i < table.children.length; i++) {
+            var child = table.children[i];
+            if (child.tagName === "COLGROUP") {
+                colgroups.push(child);
+            }
+        }
+        return colgroups;
+    }
+
     //обеспечивает успех только при расположении ячеек в одной строке
     function ensureCellsInOneRow(cell0, cell1) {
         if (cell0.parentElement != cell1.parentElement) {
@@ -106,11 +157,11 @@ window.StickyFilter = (function () {
 
     //применяет фильтры к содержимому таблицы
     function filterTable(table) {
-        var filterRow = table.querySelector("tr." + RF_CLASS);
-        var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
+        var filterRow = getTableRows(table, "." + RF_CLASS)[0];
+        var rows = getTableRows(table, ":not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
         if (!filterRow || rows.length == 0) return;
         var filterValues = {};
-        var filterCells = filterRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
+        var filterCells = getRowCells(filterRow, "." + CF_CLASS);
         for (var i = 0; i < filterCells.length; i++) {
             var filterCell = filterCells[i];
             if (!filterCell.hasOwnProperty("colIndex")) {
@@ -141,7 +192,7 @@ window.StickyFilter = (function () {
 
     //отменяет действие фильтров на таблицу
     function unfilterTable(table) {
-        var rows = table.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
+        var rows = getTableRows(table, ":not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
         for (var i = 0; i < rows.length; i++) {
             var row = rows[i];
             row.style.display = "table-row";
@@ -173,7 +224,7 @@ window.StickyFilter = (function () {
             }
             peer.style.visibility = "visible";
 
-            var stickyRows = table.querySelectorAll("tr." + RS_CLASS + ", tr." + RF_CLASS);
+            var stickyRows = getTableRows(table, "." + RS_CLASS + ", ." + RF_CLASS);
             var acc = ceiling + captionHeight;
             for (var k = 0; k < stickyRows.length; k++) {
                 var stickyRow = stickyRows[k];
@@ -279,7 +330,7 @@ window.StickyFilter = (function () {
         }
         //текущие ширине столбцов определены
         //удаление имеющихся элементов colgroup
-        var colgroups = table.querySelectorAll("colgroup");
+        var colgroups = getTableColgroups(table);
         for (var j = 0; j < colgroups.length; j++) {
             removeElement(colgroups[j]);
         }
@@ -531,7 +582,7 @@ window.StickyFilter = (function () {
             var filterRow = getFilterRow(table)
             //предполагается, что фильтровальные ячейки будут в одной строке таблицы
             if (!filterRow) continue; //если в таблице нет фильтровальных ячеек
-            var filterCells = filterRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
+            var filterCells = getRowCells(filterRow, "." + CF_CLASS);
             calcColIndexes(table, filterCells);
             for (var j = 0; j < filterCells.length; j++) {
                 var filterInput = document.createElement("input");
@@ -557,9 +608,9 @@ window.StickyFilter = (function () {
         var filteredTables = document.querySelectorAll("table." + TF_CLASS);
         for (var i = 0; i < filteredTables.length; i++) {
             var table = filteredTables[i];
-            var filterRow = table.querySelector("tr." + RF_CLASS);
+            var filterRow = getTableRows(table, "." + RF_CLASS)[0];
             removeClass(filterRow, RF_CLASS);
-            var filterCells = filterRow.querySelectorAll("th." + CF_CLASS + ", td." + CF_CLASS);
+            var filterCells = getRowCells(rfilterRowow, "." + CF_CLASS);
             for (var j = 0; j < filterCells.length; j++) {
                 removeElement(filterCells[j].querySelector("input[type=text]"));
             }
@@ -586,7 +637,7 @@ window.StickyFilter = (function () {
         var allTables = document.querySelectorAll("table");
         for (var i = 0; i < allTables.length; i++) {
             var table = allTables[i];
-            var stickyRows = table.querySelectorAll("tr." + RS_CLASS + ", tr." + RF_CLASS);
+            var stickyRows = getTableRows(table, "." + RS_CLASS + ", ." + RF_CLASS);
             if (stickyRows.length == 0) continue; //в таблице нет строк для закрепления
             addClass(table, TS_CLASS);
             percentizeTable(table); //после добавления классов, для которых могут иметься стили, влияющие на ширину
@@ -595,7 +646,7 @@ window.StickyFilter = (function () {
             wrapper.appendChild(peer);
             table.peer = peer;
             peer.peer = table;
-            var peerRowsToDelete = peer.querySelectorAll("tr:not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
+            var peerRowsToDelete = getTableRows(peer, ":not(." + RF_CLASS + "):not(." + RS_CLASS + ")");
             for (var j = 0; j < peerRowsToDelete.length; j++) {
                 removeElement(peerRowsToDelete[j]);
             }
@@ -634,7 +685,7 @@ window.StickyFilter = (function () {
     function tableCanFilter(table) {
         //таблицу разрешено фильтровать, если все её незакреплённые строки не содержат
         //объединённых ячеек совсем или содержат, но они объединены только по горизонтали
-        var nonStickyRows = table.querySelectorAll("tr:not(." + RS_CLASS + ")");
+        var nonStickyRows = getTableRows(table, ":not(." + RS_CLASS + ")");
         for (var i = 0; i < nonStickyRows.length; i++) {
             var cells = nonStickyRows[i].cells;
             for (var j = 0; j < cells.length; j++) {
@@ -647,7 +698,7 @@ window.StickyFilter = (function () {
     /** Возвращает первую строку таблицы с фильтровальными ячейками или null. */
     function getFilterRow(table) {
         //возвращает строку, содержащую первую ячейку с классом CF_CLASS, или null
-        var firstFilteringCell = table.querySelector("th." + CF_CLASS + ", td." + CF_CLASS);
+        var firstFilteringCell = getTableCells(table, "." + CF_CLASS)[0];
         if (firstFilteringCell) return firstFilteringCell.parentElement;
         return null;
     }
@@ -704,7 +755,7 @@ window.StickyFilter = (function () {
         calcColIndexes(table, [startCell, endCell]);
         var filterRow = startCell.parentElement;
         if (!checkRowFilterability(filterRow, startCell.colIndex, endCell.colIndex)) return false;
-        var nonStickyRows = table.querySelectorAll("tr:not(." + RS_CLASS + ")");
+        var nonStickyRows = getTableRows(table, ":not(." + RS_CLASS + ")");
         for (var i = 0; i < nonStickyRows.length; i++) {
             var nonStickyRow = nonStickyRows[i];
             if (nonStickyRow === filterRow) continue; //уже проверено
