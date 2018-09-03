@@ -610,7 +610,7 @@ window.StickyFilter = (function () {
             var table = filteredTables[i];
             var filterRow = getTableRows(table, "." + RF_CLASS)[0];
             removeClass(filterRow, RF_CLASS);
-            var filterCells = getRowCells(rfilterRowow, "." + CF_CLASS);
+            var filterCells = getRowCells(filterRow, "." + CF_CLASS);
             for (var j = 0; j < filterCells.length; j++) {
                 removeElement(filterCells[j].querySelector("input[type=text]"));
             }
